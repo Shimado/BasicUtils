@@ -3,19 +3,42 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.shimado.basicutils</groupId>
+    <artifactId>v1_21_R4</artifactId>
+
     <parent>
         <groupId>org.shimado.basicutils</groupId>
         <artifactId>BasicUtils</artifactId>
-        <version>1.0</version>
+        <version>${revision}</version>
     </parent>
 
-    <groupId>org.shimado</groupId>
-    <artifactId>v1_21_R4</artifactId>
+<!--    <build>-->
+<!--        <plugins>-->
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-compiler-plugin</artifactId>-->
+<!--                <version>3.8.1</version>-->
+<!--                <configuration>-->
+<!--                    <source>17</source>-->
+<!--                    <target>17</target>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+<!--        </plugins>-->
+<!--    </build>-->
 
-    <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>1.21.5-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.shimado.basicutils</groupId>
+            <artifactId>api</artifactId>
+            <version>${revision}</version>
+        </dependency>
+    </dependencies>
 
 </project>

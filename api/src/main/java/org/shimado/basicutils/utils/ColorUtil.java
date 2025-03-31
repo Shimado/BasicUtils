@@ -1,6 +1,9 @@
-package org.shimado.basicutils;
+package org.shimado.basicutils.utils;
 
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+
+import java.awt.*;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,6 +13,7 @@ public class ColorUtil {
 
     private static final Pattern pattern1 = Pattern.compile("(?<=#\\([a-fA-F0-9]{6}\\))(.*)(?=#\\([a-fA-F0-9]{6}\\))");
     private static final Pattern pattern2 = Pattern.compile("#[a-fA-F0-9]{6}");
+    private static final Pattern pattern3 = Pattern.compile("&[0123456789abcdefklmnn]");
 
 
     public static String getColor(String text) {
@@ -71,6 +75,27 @@ public class ColorUtil {
 
     public static List<String> getColorList(List<String> text) {
         return text.stream().map(l -> getColor(l)).collect(Collectors.toList());
+    }
+
+
+    public static boolean isAnyColor(String hex){
+        return pattern2.matcher(hex).find() || pattern3.matcher(hex).find();
+    }
+
+
+    public static boolean isHexColor(String hex){
+        return pattern2.matcher(hex).find();
+    }
+
+
+    public static Color getHexColor(String hex){
+        if(hex.equalsIgnoreCase("transparent")) return new Color(0, 0, 0, 0);
+        int[] rgb = new int[]{
+                Integer.parseInt(hex.substring(1, 3), 16),
+                Integer.parseInt(hex.substring(3, 5), 16),
+                Integer.parseInt(hex.substring(5, 7), 16)
+        };
+        return new Color(rgb[0], rgb[1], rgb[2]);
     }
 
 }

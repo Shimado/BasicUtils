@@ -1,4 +1,4 @@
-package org.shimado.basicutils;
+package org.shimado.basicutils.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
