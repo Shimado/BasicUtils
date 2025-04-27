@@ -1,8 +1,14 @@
 package org.shimado.basicutils.v1_21_R4;
 
+import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
+import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
+import net.minecraft.network.protocol.game.PacketPlayOutEntityStatus;
+import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntity;
+import net.minecraft.world.entity.projectile.EntityFireworks;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.craftbukkit.v1_21_R4.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -62,6 +68,16 @@ public class VersionInstance implements IVersionControl {
         }catch (Exception e){
             return transparentColor;
         }
+    }
+
+    @Override
+    public void createFirework(Player player, Location loc, ItemStack fireworkItem) {
+        EntityFireworks firework = new EntityFireworks(NMSUtil.getWorld(loc), loc.getX(), loc.getY(), loc.getZ(), CraftItemStack.asNMSCopy(fireworkItem));
+        NMSUtil.sendPacket(player, new PacketPlayOutSpawnEntity(NMSUtil.getEntityID(firework), firework.cG(), loc.getX(), loc.getY(), loc.getZ(), firework.dL(), firework.dN(), firework.an(), 1, firework.dy(), firework.cA() * 1.0));
+        firework.h = 0;
+        NMSUtil.sendPacket(player, new PacketPlayOutEntityMetadata(NMSUtil.getEntityID(firework), firework.ar().b()));
+        NMSUtil.sendPacket(player, new PacketPlayOutEntityStatus(firework, (byte) 17));
+        NMSUtil.sendPacket(player, new PacketPlayOutEntityDestroy(NMSUtil.getEntityID(firework)));
     }
 
 }

@@ -107,8 +107,41 @@ public class VersionControl {
     }
 
 
+    public boolean isLegacy(){
+        return version.equals("v1_12_R1");
+    }
+
+
+    public boolean isCustomModelData(){
+        return Arrays.asList(
+                "v1_12_R1",
+                "v1_13_R1",
+                "v1_13_R2"
+        ).stream().noneMatch(it -> version.equals(it));
+    }
+
+
+    public boolean isHex(){
+        return Arrays.asList(
+                "v1_12_R1",
+                "v1_13_R1",
+                "v1_13_R2",
+                "v1_14_R1",
+                "v1_15_R1",
+                "v1_16_R1",
+                "v1_16_R2",
+                "v1_16_R3"
+        ).stream().noneMatch(it -> version.equals(it));
+    }
+
+
     public boolean isHeadMetaUpdated() {
         return Arrays.asList(
+                "v1_12_R1",
+                "v1_13_R1",
+                "v1_13_R2",
+                "v1_14_R1",
+                "v1_15_R1",
                 "v1_16_R1",
                 "v1_16_R2",
                 "v1_16_R3",
@@ -124,6 +157,11 @@ public class VersionControl {
 
     public boolean is1_21_update(){
         return Arrays.asList(
+                "v1_12_R1",
+                "v1_13_R1",
+                "v1_13_R2",
+                "v1_14_R1",
+                "v1_15_R1",
                 "v1_16_R1",
                 "v1_16_R2",
                 "v1_16_R3",

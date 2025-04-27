@@ -5,7 +5,10 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -24,6 +27,7 @@ import java.util.UUID;
 
 public class CreateItemUtil {
 
+    private static boolean isCustomModelData = BasicUtils.getVersionControl().isCustomModelData();
     private static boolean is1_21_update = BasicUtils.getVersionControl().is1_21_update();
     private static boolean isHeadMetaUpdated = BasicUtils.getVersionControl().isHeadMetaUpdated();
 
@@ -38,8 +42,10 @@ public class CreateItemUtil {
             .toArray(ItemFlag[]::new);
 
 
+    private static Inventory convertInv = Bukkit.createInventory(null, 9, "BasicTestInventory");
+
     public static ItemStack create(Object material, String name, List<String> lore, Boolean enchant, int modelData, boolean hideNames) {
-        ItemStack item = getItemStackFrom(material);
+        ItemStack item = getItemStackFrom(material).clone();
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(ColorUtil.getColor(name));
         meta.setLore(ColorUtil.getColorList(lore));
@@ -51,22 +57,30 @@ public class CreateItemUtil {
             if(enchant) meta.addEnchant(Enchantment.KNOCKBACK, 1, true);
         }
 
-        if(modelData > 0){
+        if(modelData > 0 && isCustomModelData){
             meta.setCustomModelData(modelData);
         }
 
         meta.addItemFlags(itemFlags);
         item.setItemMeta(meta);
-        return item;
+        convertInv.setItem(0, item);
+        return convertInv.getItem(0);
     }
 
 
-    private static ItemStack getItemStackFrom(Object material){
+    public static ItemStack create(Object material, String name, List<String> lore, Boolean enchant, int modelData, boolean hideNames, String NBTTag, String NBTTagValue){
+        ItemStack item = create(material, name, lore, enchant, modelData, hideNames);
+        convertInv.setItem(0, BasicUtils.getVersionControl().getVersionControl().createItemWithTag(item, NBTTag, NBTTagValue));
+        return convertInv.getItem(0);
+    }
+
+
+    public static ItemStack getItemStackFrom(Object material){
         if(material instanceof String && ((String) material).length() > 30){
             return getSkull((String) material);
         }
         else if(material instanceof String && ((String) material).length() < 30){
-            return new ItemStack(Material.getMaterial((String) material));
+            return MaterialUtil.getItemByName((String) material);
         }
         else if(material instanceof Material){
             return new ItemStack((Material) material);
@@ -88,7 +102,7 @@ public class CreateItemUtil {
     public static ItemStack getSkull(String url) {
         if(!isHeadMetaUpdated){
             url = "http://textures.minecraft.net/texture/" + url;
-            ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
+            ItemStack skull = MaterialUtil.getHead();
             SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
             GameProfile profile = getGameProfile(UUID.randomUUID(), url);
             Field profileField = null;
@@ -121,6 +135,42 @@ public class CreateItemUtil {
             skull.setItemMeta(skullMeta);
             return skull;
         }
+    }
+
+
+    public static ItemStack getHeadOfPlayerOnTheServer(UUID playerUUID){
+        ItemStack item = MaterialUtil.getHead();
+        SkullMeta meta = (SkullMeta) item.getItemMeta();
+        OfflinePlayer offPlayer = Bukkit.getOfflinePlayer(playerUUID);
+        meta.setDisplayName(offPlayer.getName());
+        meta.setOwningPlayer(Bukkit.getOfflinePlayer(playerUUID));
+        item.setItemMeta(meta);
+        return item;
+    }
+
+
+    public static ItemStack getCloneAmount1(ItemStack itemToClone){
+        ItemStack item = itemToClone.clone();
+        item.setAmount(1);
+        return item;
+    }
+
+
+    public boolean isSameItems(ItemStack item1, ItemStack item2, String tag){
+        if(item1 == null || item2 == null || item1.getType().equals(Material.AIR)) return false;
+        ItemStack itemClone1 = getCloneAmount1(item1);
+        ItemStack itemClone2 = getCloneAmount1(item2);
+        if(tag != null && !tag.isEmpty()){
+            String tag1 = BasicUtils.getVersionControl().getVersionControl().getTag(itemClone1, tag);
+            String tag2 = BasicUtils.getVersionControl().getVersionControl().getTag(itemClone2, tag);
+            return tag1 != null && tag2 != null && tag1.equals(tag2);
+        }
+        return itemClone1.equals(itemClone2);
+    }
+
+
+    public static String getItemTag(ItemStack item, String tag){
+        return BasicUtils.getVersionControl().getVersionControl().getTag(item, tag);
     }
 
 }

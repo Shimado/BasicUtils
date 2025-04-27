@@ -1,6 +1,8 @@
 package org.shimado.basicutils.utils;
 
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.util.Calendar;
 import java.util.Date;
 
 public class NumberUtil {
@@ -44,13 +46,25 @@ public class NumberUtil {
     }
 
 
-    public static String getDateFormat(Date date, String dateFormat){
+    public boolean getChance(double chance){
+        return chance > Math.random() * 100.0;
+    }
+
+
+    public static String getDateTimeFormat(Date date, String dateFormat){
         return new SimpleDateFormat(dateFormat).format(date);
     }
 
 
-    public static String getTimeFormat(Date date, String timeFormat){
-        return new SimpleDateFormat(timeFormat).format(date);
+    public static long[] getTime(int time){
+        Duration d = Duration.ofSeconds(time);
+        return new long[]{
+                d.toDays(),
+                d.toHoursPart(),
+                d.toMinutesPart(),
+                d.toSecondsPart()
+        };
     }
+
 
 }

@@ -1,11 +1,16 @@
-package org.shimado.basicutils.utils;
+package org.shimado.basicutils.inventory;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.shimado.basicutils.utils.ColorUtil;
+import org.shimado.basicutils.utils.CreateItemUtil;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class InventoryUtil {
 
@@ -14,6 +19,21 @@ public class InventoryUtil {
             if(itemStack == null || itemStack.getType().equals(Material.AIR)){
                 player.getInventory().addItem(item);
                 return true;
+            }
+        }
+        return false;
+    }
+
+
+    public static boolean addItemsToInventory(Player player, List<ItemStack> items){
+        int howMany = 0;
+        for(ItemStack itemStack : player.getInventory().getStorageContents()){
+            if(itemStack == null || itemStack.getType().equals(Material.AIR)){
+                howMany++;
+                if(howMany >= items.size()){
+                    items.forEach(it -> player.getInventory().addItem(it));
+                    return true;
+                }
             }
         }
         return false;
@@ -43,6 +63,22 @@ public class InventoryUtil {
                 inv.setItem(s, item);
             }
         });
+    }
+
+
+    @FunctionalInterface
+    public interface InventoryLogic{
+        void run(Inventory inv);
+    }
+
+    public static void createGUI(Player player, InvSessionInstance session, int sizeGUI, String titleGUI, Map<Integer, List<Object>> emptySlots, InventoryLogic logic){
+        session.setChangingPage(true);
+        Inventory inv = Bukkit.createInventory(null, 9 * sizeGUI, ColorUtil.getColor(titleGUI));
+        session.setInv(inv);
+        emptySlots.forEach((slot, materials) -> InventoryUtil.setItemToGUI(inv, slot, materials.get(0), " ", new ArrayList<>(), false, (int) materials.get(1), true));
+        logic.run(inv);
+        player.openInventory(inv);
+        session.setChangingPage(false);
     }
 
 }

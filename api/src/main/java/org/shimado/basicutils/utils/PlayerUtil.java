@@ -78,4 +78,9 @@ public class PlayerUtil {
         return player != null && player.isOnline();
     }
 
+
+    public static boolean isPlayerVanished(Player player){
+        return player.getMetadata("vanished").stream().anyMatch(m -> m.asBoolean());
+    }
+
 }

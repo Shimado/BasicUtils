@@ -1,5 +1,6 @@
 package org.shimado.basicutils.nms;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -14,5 +15,6 @@ public interface IVersionControl {
     void moveHeadToBottom(Player player);
     void setPixelColor(MapCanvas mapCanvas, int x, int y, Color color);
     Color getBasePixelColor(MapCanvas mapCanvas, int x, int y);
+    void createFirework(Player player, Location loc, ItemStack firework);
 
 }
