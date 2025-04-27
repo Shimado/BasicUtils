@@ -24,21 +24,20 @@ public class VersionInstance implements IVersionControl {
 
     @Override
     public ItemStack createItemWithTag(ItemStack item, String tag, String value) {
-        NamespacedKey key = new NamespacedKey(BasicUtils.getPlugin(), tag);
-        ItemMeta meta = item.getItemMeta();
-        PersistentDataContainer container = meta.getPersistentDataContainer();
-        container.set(key, PersistentDataType.STRING, value);
-        item.setItemMeta(meta);
-        return item;
+        net.minecraft.server.v1_14_R1.ItemStack itemNMS = CraftItemStack.asNMSCopy(item);
+        NBTTagCompound tagCompound = itemNMS.getOrCreateTag();
+        tagCompound.setString(tag, value);
+        itemNMS.setTag(tagCompound);
+        return CraftItemStack.asCraftMirror(itemNMS);
     }
 
 
     @Override
     public String getTag(ItemStack item, String tag){
         if(item == null || item.getType().equals(Material.AIR)) return "";
-        NamespacedKey key = new NamespacedKey(BasicUtils.getPlugin(), tag.toLowerCase().replace(" ", ""));
-        ItemMeta meta = item.getItemMeta();
-        return meta.getPersistentDataContainer().getOrDefault(key, PersistentDataType.STRING, "");
+        net.minecraft.server.v1_14_R1.ItemStack itemNMS = CraftItemStack.asNMSCopy(item);
+        NBTTagCompound tagCompound = itemNMS.getTag();
+        return tagCompound != null ? tagCompound.getString(tag) : "";
     }
 
 

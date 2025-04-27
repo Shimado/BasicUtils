@@ -19,18 +19,19 @@ public class VersionInstance implements IVersionControl {
     @Override
     public ItemStack createItemWithTag(ItemStack item, String tag, String value) {
         net.minecraft.server.v1_13_R1.ItemStack itemNMS = CraftItemStack.asNMSCopy(item);
-        NBTTagCompound nbt = itemNMS.getOrCreateTag();
-        nbt.setString(tag, value);
-        itemNMS.setTag(nbt);
+        NBTTagCompound tagCompound = itemNMS.getOrCreateTag();
+        tagCompound.setString(tag, value);
+        itemNMS.setTag(tagCompound);
         return CraftItemStack.asCraftMirror(itemNMS);
     }
 
 
     @Override
     public String getTag(ItemStack item, String tag){
+        if(item == null || item.getType().equals(org.bukkit.Material.AIR)) return "";
         net.minecraft.server.v1_13_R1.ItemStack itemNMS = CraftItemStack.asNMSCopy(item);
-        NBTTagCompound tagValue = itemNMS.getTag();
-        return (tagValue == null) ? "" : tagValue.getString(tag);
+        NBTTagCompound tagCompound = itemNMS.getTag();
+        return tagCompound != null ? tagCompound.getString(tag) : "";
     }
 
 
