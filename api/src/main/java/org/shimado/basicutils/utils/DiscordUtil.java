@@ -16,6 +16,11 @@ public class DiscordUtil {
     }
 
 
+    public boolean isActive(){
+        return this.isDiscordSRVEnabled;
+    }
+
+
     private void setupDiscordSRV(boolean useDiscordSRV) {
         if(!useDiscordSRV) return;
 
@@ -24,12 +29,12 @@ public class DiscordUtil {
             return;
         }
 
-        isDiscordSRVEnabled = true;
+        this.isDiscordSRVEnabled = true;
     }
 
 
     public void sendMessage(String textChannel, List<String> messages){
-        if(isDiscordSRVEnabled){
+        if(this.isDiscordSRVEnabled){
             github.scarsz.discordsrv.util.DiscordUtil.sendMessage(
                     DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName(textChannel),
                     MessageUtil.translateLegacy(messages.stream().collect(Collectors.joining("\r\n")))

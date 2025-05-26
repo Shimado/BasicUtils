@@ -25,4 +25,13 @@ public class PermissionUtil {
         return hasAccess;
     }
 
+    public static boolean hasAccessAndSendMessage(CommandSender sender, String message, String... permissions){
+        boolean hasAccess = hasAccess(sender, permissions);
+        if(!hasAccess) {
+            sender.sendMessage(ColorUtil.getColor(message));
+            if(sender instanceof Player) SoundUtil.noPermission((Player) sender);
+        }
+        return hasAccess;
+    }
+
 }

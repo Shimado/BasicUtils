@@ -1,7 +1,9 @@
 package org.shimado.basicutils.v1_13_R2;
 
+import com.mojang.authlib.GameProfile;
 import net.minecraft.server.v1_13_R2.*;
 import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -10,6 +12,7 @@ import org.bukkit.map.MapPalette;
 import org.shimado.basicutils.nms.IVersionControl;
 
 import java.awt.*;
+import java.util.Map;
 
 public class VersionInstance implements IVersionControl {
 
@@ -27,6 +30,18 @@ public class VersionInstance implements IVersionControl {
 
 
     @Override
+    public ItemStack createItemWithTags(ItemStack item, Map<String, String> map) {
+        net.minecraft.server.v1_13_R2.ItemStack itemNMS = CraftItemStack.asNMSCopy(item);
+        NBTTagCompound tagCompound = itemNMS.getOrCreateTag();
+        for(Map.Entry<String, String> a : map.entrySet()){
+            tagCompound.setString(a.getKey(), a.getValue());
+        }
+        itemNMS.setTag(tagCompound);
+        return CraftItemStack.asCraftMirror(itemNMS);
+    }
+
+
+    @Override
     public String getTag(ItemStack item, String tag){
         if(item == null || item.getType().equals(org.bukkit.Material.AIR)) return "";
         net.minecraft.server.v1_13_R2.ItemStack itemNMS = CraftItemStack.asNMSCopy(item);
@@ -37,14 +52,9 @@ public class VersionInstance implements IVersionControl {
 
     @Override
     public void moveHeadToBottom(Player player){
-        PacketPlayOutEntity.PacketPlayOutEntityLook packet = new PacketPlayOutEntity.PacketPlayOutEntityLook(
-                player.getEntityId(),
-                (byte) ((player.getLocation().getYaw() + 10) * 256F / 360F),
-                (byte) ((player.getLocation().getPitch() + 10) * 256F / 360F),
-                true
-        );
-        player.setRotation(player.getLocation().getYaw(), 90f);
-        NMSUtil.getEntityPlayer(player).playerConnection.sendPacket(packet);
+        Location loc = player.getLocation().clone();
+        loc.setPitch(90);
+        player.teleport(loc);
     }
 
 
@@ -73,6 +83,11 @@ public class VersionInstance implements IVersionControl {
         NMSUtil.sendPacket(player, new PacketPlayOutEntityMetadata(NMSUtil.getEntityID(firework), firework.getDataWatcher(), false));
         NMSUtil.sendPacket(player, new PacketPlayOutEntityStatus(firework, (byte) 17));
         NMSUtil.sendPacket(player, new PacketPlayOutEntityDestroy(NMSUtil.getEntityID(firework)));
+    }
+
+    @Override
+    public GameProfile getGameProfile(Player player){
+        return ((CraftPlayer) player).getProfile();
     }
 
 }

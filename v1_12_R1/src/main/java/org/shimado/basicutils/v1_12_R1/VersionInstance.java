@@ -1,7 +1,9 @@
 package org.shimado.basicutils.v1_12_R1;
 
+import com.mojang.authlib.GameProfile;
 import net.minecraft.server.v1_12_R1.*;
 import org.bukkit.Location;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -10,6 +12,7 @@ import org.bukkit.map.MapPalette;
 import org.shimado.basicutils.nms.IVersionControl;
 
 import java.awt.*;
+import java.util.Map;
 
 public class VersionInstance implements IVersionControl {
 
@@ -21,6 +24,18 @@ public class VersionInstance implements IVersionControl {
         net.minecraft.server.v1_12_R1.ItemStack itemNMS = CraftItemStack.asNMSCopy(item);
         NBTTagCompound tagCompound = itemNMS.getTag() != null ? itemNMS.getTag() : new NBTTagCompound();
         tagCompound.setString(tag, value);
+        itemNMS.setTag(tagCompound);
+        return CraftItemStack.asCraftMirror(itemNMS);
+    }
+
+
+    @Override
+    public ItemStack createItemWithTags(ItemStack item, Map<String, String> map) {
+        net.minecraft.server.v1_12_R1.ItemStack itemNMS = CraftItemStack.asNMSCopy(item);
+        NBTTagCompound tagCompound = itemNMS.getTag() != null ? itemNMS.getTag() : new NBTTagCompound();
+        for(Map.Entry<String, String> a : map.entrySet()){
+            tagCompound.setString(a.getKey(), a.getValue());
+        }
         itemNMS.setTag(tagCompound);
         return CraftItemStack.asCraftMirror(itemNMS);
     }
@@ -68,6 +83,11 @@ public class VersionInstance implements IVersionControl {
         NMSUtil.sendPacket(player, new PacketPlayOutEntityMetadata(NMSUtil.getEntityID(firework), firework.getDataWatcher(), false));
         NMSUtil.sendPacket(player, new PacketPlayOutEntityStatus(firework, (byte) 17));
         NMSUtil.sendPacket(player, new PacketPlayOutEntityDestroy(NMSUtil.getEntityID(firework)));
+    }
+
+    @Override
+    public GameProfile getGameProfile(Player player){
+        return ((CraftPlayer) player).getProfile();
     }
 
 }

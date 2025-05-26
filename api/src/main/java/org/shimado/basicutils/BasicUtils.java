@@ -9,8 +9,6 @@ public class BasicUtils {
 
     private static Plugin plugin;
     private static VersionControl versionControl;
-    private static EconomyUtil economyUtil;
-    private static GroupUtil groupUtil;
 
     public BasicUtils(Plugin plugin){
         this.plugin = plugin;

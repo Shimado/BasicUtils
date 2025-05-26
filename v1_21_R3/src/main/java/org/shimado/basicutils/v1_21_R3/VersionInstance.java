@@ -1,5 +1,6 @@
 package org.shimado.basicutils.v1_21_R3;
 
+import com.mojang.authlib.GameProfile;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityStatus;
@@ -8,6 +9,7 @@ import net.minecraft.world.entity.projectile.EntityFireworks;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_21_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -20,6 +22,7 @@ import org.shimado.basicutils.BasicUtils;
 import org.shimado.basicutils.nms.IVersionControl;
 
 import java.awt.*;
+import java.util.Map;
 
 public class VersionInstance implements IVersionControl {
 
@@ -28,10 +31,21 @@ public class VersionInstance implements IVersionControl {
 
     @Override
     public ItemStack createItemWithTag(ItemStack item, String tag, String value) {
-        NamespacedKey key = new NamespacedKey(BasicUtils.getPlugin(), tag);
         ItemMeta meta = item.getItemMeta();
         PersistentDataContainer container = meta.getPersistentDataContainer();
-        container.set(key, PersistentDataType.STRING, value);
+        container.set(new NamespacedKey(BasicUtils.getPlugin(), tag), PersistentDataType.STRING, value);
+        item.setItemMeta(meta);
+        return item;
+    }
+
+
+    @Override
+    public ItemStack createItemWithTags(ItemStack item, Map<String, String> map) {
+        ItemMeta meta = item.getItemMeta();
+        PersistentDataContainer container = meta.getPersistentDataContainer();
+        for(Map.Entry<String, String> a : map.entrySet()){
+            container.set(new NamespacedKey(BasicUtils.getPlugin(), a.getKey()), PersistentDataType.STRING, a.getValue());
+        }
         item.setItemMeta(meta);
         return item;
     }
@@ -79,6 +93,11 @@ public class VersionInstance implements IVersionControl {
         NMSUtil.sendPacket(player, new PacketPlayOutEntityMetadata(NMSUtil.getEntityID(firework), firework.au().b()));
         NMSUtil.sendPacket(player, new PacketPlayOutEntityStatus(firework, (byte) 17));
         NMSUtil.sendPacket(player, new PacketPlayOutEntityDestroy(NMSUtil.getEntityID(firework)));
+    }
+
+    @Override
+    public GameProfile getGameProfile(Player player){
+        return ((CraftPlayer) player).getProfile();
     }
 
 }

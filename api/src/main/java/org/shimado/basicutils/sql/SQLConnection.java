@@ -38,7 +38,7 @@ public class SQLConnection {
      * ИНИЦИИРУЕТ ЗАПУСК
      * **/
 
-    public void dbInit(){
+    private void dbInit(){
         //MySQL
         if(this.isMySQL){
             this.connection = createMySQLConnection(
@@ -126,7 +126,7 @@ public class SQLConnection {
      * ПОЛУЧАЕТ СОЕДИНЕНИЕ
      * **/
 
-    private Connection getConnection(){
+    public Connection getConnection(){
         return checkConnection();
     }
 
@@ -173,7 +173,7 @@ public class SQLConnection {
     }
 
 
-    private void closeStatement(PreparedStatement preparedStatement){
+    public void closeStatement(PreparedStatement preparedStatement){
         try {
             if(preparedStatement != null){
                 preparedStatement.close();

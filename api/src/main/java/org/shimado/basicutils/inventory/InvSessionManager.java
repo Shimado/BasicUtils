@@ -17,6 +17,11 @@ public class InvSessionManager<T extends InvSessionInstance> {
     private Map<Player, T> sessions = new HashMap<>();
 
 
+    public Map<Player, T> getSessions(){
+        return this.sessions;
+    }
+
+
     public T getOrCreateNewSession(Player player){
         T session = getSession(player);
         if(session == null){

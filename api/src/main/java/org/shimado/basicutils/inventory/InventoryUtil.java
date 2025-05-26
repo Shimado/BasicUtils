@@ -40,6 +40,32 @@ public class InventoryUtil {
     }
 
 
+    public static void addItemToInventoryOrDrop(Player player, ItemStack item){
+        if(item == null || item.getType().equals(Material.AIR)) return;
+        for(ItemStack itemStack : player.getInventory().getStorageContents()){
+            if(itemStack == null || itemStack.getType().equals(Material.AIR)){
+                player.getInventory().addItem(item);
+                return;
+            }
+        }
+        player.getWorld().dropItemNaturally(player.getLocation().clone().add(0, 1, 0), item);
+    }
+
+
+    public static void addItemsToInventoryOrDrop(Player player, List<ItemStack> items){
+        if(items.isEmpty()) return;
+        List<ItemStack> itemsToGive = new ArrayList<>(items);
+        for(ItemStack itemStack : player.getInventory().getStorageContents()){
+            if(itemStack == null || itemStack.getType().equals(Material.AIR)){
+                player.getInventory().addItem(itemsToGive.get(0));
+                itemsToGive.remove(0);
+                if(itemsToGive.isEmpty()) return;
+            }
+        }
+        itemsToGive.forEach(it -> player.getWorld().dropItemNaturally(player.getLocation().clone().add(0, 1, 0), it));
+    }
+
+
     public static void setItemToGUI(Inventory inv, int slot, Object material, String name, List<String> lore, boolean enchant, int customModelData, boolean hideName){
         if(slot != -1){
             inv.setItem(slot, CreateItemUtil.create(material, name, lore, enchant, customModelData, hideName));

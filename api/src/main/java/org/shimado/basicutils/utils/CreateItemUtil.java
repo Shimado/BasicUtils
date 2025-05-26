@@ -20,10 +20,7 @@ import org.shimado.basicutils.BasicUtils;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class CreateItemUtil {
 
@@ -99,6 +96,41 @@ public class CreateItemUtil {
     }
 
 
+    public static ItemStack getHeadFromBase64(String base64) {
+        ItemStack head = new ItemStack(MaterialUtil.getHead());
+        if (base64 == null || base64.isEmpty()) return head;
+
+        SkullMeta meta = (SkullMeta) head.getItemMeta();
+        GameProfile profile = new GameProfile(UUID.randomUUID(), null);
+        profile.getProperties().put("textures", new Property("textures", base64));
+
+        try {
+            Field profileField = meta.getClass().getDeclaredField("profile");
+            profileField.setAccessible(true);
+            profileField.set(meta, profile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        head.setItemMeta(meta);
+        return head;
+    }
+
+
+    public static String getPlayerHeadBase64(Player player) {
+        try {
+            GameProfile profile = BasicUtils.getVersionControl().getVersionControl().getGameProfile(player);
+            Collection<Property> textures = profile.getProperties().get("textures");
+            if (!textures.isEmpty()) {
+                return textures.iterator().next().getValue();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
     public static ItemStack getSkull(String url) {
         if(!isHeadMetaUpdated){
             url = "http://textures.minecraft.net/texture/" + url;
@@ -142,7 +174,7 @@ public class CreateItemUtil {
         ItemStack item = MaterialUtil.getHead();
         SkullMeta meta = (SkullMeta) item.getItemMeta();
         OfflinePlayer offPlayer = Bukkit.getOfflinePlayer(playerUUID);
-        meta.setDisplayName(offPlayer.getName());
+        if(offPlayer == null) return item;
         meta.setOwningPlayer(Bukkit.getOfflinePlayer(playerUUID));
         item.setItemMeta(meta);
         return item;

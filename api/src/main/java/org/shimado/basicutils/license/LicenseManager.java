@@ -9,22 +9,24 @@ import java.time.Duration;
 public class LicenseManager {
 
     private final String serverIP;
+    private final String pluginName;
     private final String apiUrl;
 
-    public LicenseManager(String serverIP, String apiUrl) {
+    public LicenseManager(String serverIP, String pluginName, String apiUrl) {
         this.serverIP = serverIP;
+        this.pluginName = pluginName;
         this.apiUrl = apiUrl;
     }
 
     public boolean validate() throws Exception {
-        String requestUrl = apiUrl + "/" + serverIP;
+        String requestUrl = apiUrl + "/" + pluginName + "/" + serverIP;
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(5))
                 .build();
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(requestUrl))
-                .header("User-Agent", "YourPluginLicenseCheck/1.0")
+                .header("User-Agent", pluginName + "/1.0")
                 .timeout(Duration.ofSeconds(10))
                 .build();
 
