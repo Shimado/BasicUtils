@@ -13,6 +13,7 @@
     <modules>
         <module>connector</module>
         <module>api</module>
+        <module>v1_21_R5</module>
         <module>v1_21_R4</module>
         <module>v1_21_R3</module>
         <module>v1_21_R2</module>
@@ -39,7 +40,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <revision>1.0.40</revision>
+        <revision>1.1.6</revision>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -49,13 +50,6 @@
         <repository>
             <id>mavenCentral</id>
             <url>https://repo1.maven.org/maven2/</url>
-        </repository>
-        <repository>
-            <id>spigotmc-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
         </repository>
         <repository>
             <id>spigot-repo</id>
@@ -91,7 +85,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.21.5-R0.1-SNAPSHOT</version>
+            <version>1.21.7-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

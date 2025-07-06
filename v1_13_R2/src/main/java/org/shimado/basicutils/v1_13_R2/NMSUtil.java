@@ -1,10 +1,7 @@
 package org.shimado.basicutils.v1_13_R2;
 
 
-import net.minecraft.server.v1_13_R2.Entity;
-import net.minecraft.server.v1_13_R2.EntityPlayer;
-import net.minecraft.server.v1_13_R2.Packet;
-import net.minecraft.server.v1_13_R2.WorldServer;
+import net.minecraft.server.v1_13_R2.*;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
@@ -26,6 +23,14 @@ public class NMSUtil {
 
     public static void sendPacket(Player player, Packet packet){
         getEntityPlayer(player).playerConnection.sendPacket(packet);
+    }
+
+    public static DataWatcher getDataWatcher(Entity entity){
+        return entity.getDataWatcher();
+    }
+
+    public static void setWatcher(DataWatcher watcher, DataWatcherObject<Byte> field, byte bytes){
+        watcher.set(field, bytes);
     }
 
 }

@@ -1,10 +1,8 @@
-package org.shimado.basicutils.v1_19_R1;
+package org.shimado.basicutils.v1_21_R5;
 
 import com.mojang.authlib.GameProfile;
-import com.mojang.math.Vector3fa;
 import net.minecraft.core.particles.ParticleParamRedstone;
 import net.minecraft.core.particles.Particles;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.DataWatcher;
@@ -15,8 +13,8 @@ import net.minecraft.world.entity.decoration.EntityArmorStand;
 import net.minecraft.world.entity.projectile.EntityFireworks;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_21_R5.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_21_R5.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -41,32 +39,32 @@ public class VersionInstance implements IVersionControl {
 
     @Override
     public ItemStack createItemWithTag(ItemStack item, String tag, String value) {
-        net.minecraft.world.item.ItemStack itemNMS = CraftItemStack.asNMSCopy(item);
-        NBTTagCompound tagCompound = itemNMS.v();
-        tagCompound.a(tag, value);
-        itemNMS.c(tagCompound);
-        return CraftItemStack.asCraftMirror(itemNMS);
+        ItemMeta meta = item.getItemMeta();
+        PersistentDataContainer container = meta.getPersistentDataContainer();
+        container.set(new NamespacedKey(BasicUtils.getPlugin(), tag), PersistentDataType.STRING, value);
+        item.setItemMeta(meta);
+        return item;
     }
 
 
     @Override
     public ItemStack createItemWithTags(ItemStack item, Map<String, String> map) {
-        net.minecraft.world.item.ItemStack itemNMS = CraftItemStack.asNMSCopy(item);
-        NBTTagCompound tagCompound = itemNMS.v();
+        ItemMeta meta = item.getItemMeta();
+        PersistentDataContainer container = meta.getPersistentDataContainer();
         for(Map.Entry<String, String> a : map.entrySet()){
-            tagCompound.a(a.getKey(), a.getValue());
+            container.set(new NamespacedKey(BasicUtils.getPlugin(), a.getKey()), PersistentDataType.STRING, a.getValue());
         }
-        itemNMS.c(tagCompound);
-        return CraftItemStack.asCraftMirror(itemNMS);
+        item.setItemMeta(meta);
+        return item;
     }
 
 
     @Override
     public String getTag(ItemStack item, String tag){
         if(item == null || item.getType().equals(Material.AIR)) return "";
-        net.minecraft.world.item.ItemStack itemNMS = CraftItemStack.asNMSCopy(item);
-        NBTTagCompound tagCompound = itemNMS.u();
-        return tagCompound != null ? tagCompound.l(tag) : "";
+        NamespacedKey key = new NamespacedKey(BasicUtils.getPlugin(), tag.toLowerCase().replace(" ", ""));
+        ItemMeta meta = item.getItemMeta();
+        return meta.getPersistentDataContainer().getOrDefault(key, PersistentDataType.STRING, "");
     }
 
 
@@ -94,16 +92,16 @@ public class VersionInstance implements IVersionControl {
         }
     }
 
-
     @Override
     public void createFirework(Player player, Location loc, ItemStack fireworkItem) {
         EntityFireworks firework = new EntityFireworks(NMSUtil.getWorld(loc), loc.getX(), loc.getY(), loc.getZ(), CraftItemStack.asNMSCopy(fireworkItem));
-        NMSUtil.sendPacket(player, new PacketPlayOutSpawnEntity(firework));
-        firework.f = 0;
-        NMSUtil.sendPacket(player, new PacketPlayOutEntityMetadata(NMSUtil.getEntityID(firework), firework.ai(), false));
+        NMSUtil.sendPacket(player, new PacketPlayOutSpawnEntity(NMSUtil.getEntityID(firework), firework.cK(), loc.getX(), loc.getY(), loc.getZ(), firework.dP(), firework.dR(), firework.ap(), 1, firework.dA(), firework.cE() * 1.0));
+        firework.i = 0;
+        NMSUtil.sendPacket(player, new PacketPlayOutEntityMetadata(NMSUtil.getEntityID(firework), firework.au().b()));
         NMSUtil.sendPacket(player, new PacketPlayOutEntityStatus(firework, (byte) 17));
         NMSUtil.sendPacket(player, new PacketPlayOutEntityDestroy(NMSUtil.getEntityID(firework)));
     }
+
 
     @Override
     public GameProfile getGameProfile(Player player){
@@ -119,7 +117,7 @@ public class VersionInstance implements IVersionControl {
 
     @Override
     public void spawnParticleNote(World world, double x, double y, double z, float color) {
-        Packet packet = new PacketPlayOutWorldParticles(Particles.U, false, x, y, z, color, 0f, 0f, 1, 0);
+        Packet packet = new PacketPlayOutWorldParticles(Particles.ad, false, true, x, y, z, color, 0f, 0f, 1, 0);
         Bukkit.getOnlinePlayers().forEach(p -> {
             if(world.getUID().equals(p.getWorld().getUID())){
                 NMSUtil.sendPacket(p, packet);
@@ -130,7 +128,10 @@ public class VersionInstance implements IVersionControl {
 
     @Override
     public void spawnParticleDust(World world, double x, double y, double z, float r, float g, float b) {
-        Packet packet = new PacketPlayOutWorldParticles(new ParticleParamRedstone(new Vector3fa(r, g, b), 1f), false, x, y, z, 0f, 0f, 0f, 1, 1);
+        int R = (int) (r * 255);
+        int G = (int) (g * 255);
+        int B = (int) (b * 255);
+        Packet packet = new PacketPlayOutWorldParticles(new ParticleParamRedstone((R << 16) | (G << 8) | B, 1f), false, true, x, y, z, 0f, 0f, 0f, 1, 1);
         Bukkit.getOnlinePlayers().forEach(p -> {
             if(world.getUID().equals(p.getWorld().getUID())){
                 NMSUtil.sendPacket(p, packet);
@@ -146,7 +147,7 @@ public class VersionInstance implements IVersionControl {
         Entity stand =  new EntityArmorStand(NMSUtil.getWorld(loc), loc.getX(), loc.getY(), loc.getZ());
 
         //ОТПРАВКА ПАКЕТА НА СОЗДАНИЕ АРМОР СТЕНДА
-        Packet packet = new PacketPlayOutSpawnEntity(stand);
+        Packet packet = new PacketPlayOutSpawnEntity(NMSUtil.getEntityID(stand), stand.cK(), stand.dC(), stand.dE(), stand.dI(), stand.dP(), stand.dR(), stand.ap(), 1, stand.dA(), (double) stand.cE());
         Bukkit.getOnlinePlayers().forEach(p -> NMSUtil.sendPacket(p, packet));
 
         //ОТПРАВКА ПАКЕТА НА НАДЕВАНИЕ ГОЛОВЫ НА АРМОРСТЕНД;
@@ -159,29 +160,29 @@ public class VersionInstance implements IVersionControl {
             DataWatcher watcher = NMSUtil.getDataWatcher(stand);
 
             //УДАЛЕНИЕ ПЛОЩАКИ У АРМОРСТЕНДА
-            Field plate = EntityArmorStand.class.getDeclaredField("bG");
+            Field plate = EntityArmorStand.class.getDeclaredField("bS");
             plate.setAccessible(true);
             NMSUtil.setWatcher(watcher, (DataWatcherObject<Byte>) plate.get(stand), (byte) 0x08);
 
             //МАЛЕНЬКИЙ
             if(isSmall){
-                Field small = EntityArmorStand.class.getDeclaredField("bG");
+                Field small = EntityArmorStand.class.getDeclaredField("bS");
                 small.setAccessible(true);
                 NMSUtil.setWatcher(watcher, (DataWatcherObject<Byte>) plate.get(stand), (byte) 0x01);
             }
 
             //УГОЛ ГОЛОВЫ
-            Field angle = EntityArmorStand.class.getDeclaredField("bH");
+            Field angle = EntityArmorStand.class.getDeclaredField("bT");
             angle.setAccessible(true);
             watcher.a((DataWatcherObject<net.minecraft.core.Vector3f>) angle.get(stand), new net.minecraft.core.Vector3f(angleX, angleY, angleZ));
 
             //ИНВИЗ ДЛЯ АРМОРСТЕНДА
-            Field invis = Entity.class.getDeclaredField("Z");
+            Field invis = Entity.class.getDeclaredField("az");
             invis.setAccessible(true);
             NMSUtil.setWatcher(watcher, (DataWatcherObject<Byte>) invis.get(stand), (byte) 0x20);
 
             //ОТПРАВКА ПАКЕТА НА ИНВИЗ И УДАЛЕНИЕ ПЛОЩАДКИ
-            PacketPlayOutEntityMetadata packetMeta = new PacketPlayOutEntityMetadata(NMSUtil.getEntityID(stand), watcher, true);
+            PacketPlayOutEntityMetadata packetMeta = new PacketPlayOutEntityMetadata(NMSUtil.getEntityID(stand), watcher.b());
             Bukkit.getOnlinePlayers().forEach(p -> NMSUtil.sendPacket(p, packetMeta));
 
             return new Pair(stand, packetMeta);
@@ -234,7 +235,7 @@ public class VersionInstance implements IVersionControl {
     @Override
     public void spawnArmorStandToPlayer(Player player, Object standRaw, org.bukkit.inventory.ItemStack itemHead, Object packetRaw){
         Entity stand = (Entity) standRaw;
-        Packet packetSpawn = new PacketPlayOutSpawnEntity(stand);
+        Packet packetSpawn = new PacketPlayOutSpawnEntity(NMSUtil.getEntityID(stand), stand.cK(), stand.dC(), stand.dE(), stand.dI(), stand.dP(), stand.dR(), stand.ap(), 1, stand.dA(), (double) stand.cE());
         NMSUtil.sendPacket(player, packetSpawn);
 
         Packet packetHead = new PacketPlayOutEntityEquipment(NMSUtil.getEntityID(stand), Arrays.asList(new com.mojang.datafixers.util.Pair(EnumItemSlot.f, CraftItemStack.asNMSCopy(itemHead))));

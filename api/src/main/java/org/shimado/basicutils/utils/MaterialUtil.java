@@ -94,19 +94,19 @@ public class MaterialUtil {
         }
 
         if(name.contains("_STAINED_GLASS_PANE")){
-            return getGlassPane(name.replace("_STAINED_GLASS_PANE", "").toUpperCase());
+            return getGlassPane(name.replace("_STAINED_GLASS_PANE", ""));
         }
 
         if(name.contains("_CONCRETE")){
-            return getConcrete(name.split("_")[0].toUpperCase());
+            return getConcrete(name.replace("_CONCRETE", ""));
         }
 
         if(name.contains("_WOOL")){
-            return getWool(name.split("_")[0].toUpperCase());
+            return getWool(name.replace("_WOOL", ""));
         }
 
         if(name.contains("_DYE")){
-            return getDye(name.replace("_DYE", "").toUpperCase());
+            return getDye(name.replace("_DYE", ""));
         }
 
         if(name.contains("SUNFLOWER")){
@@ -114,7 +114,7 @@ public class MaterialUtil {
         }
 
         if(name.contains("_CARPET")){
-            return getCarpet(name.split("_")[0].toUpperCase());
+            return getCarpet(name.replace("_CARPET", ""));
         }
 
         if(name.equals("LIGHT_WEIGHTED_PRESSURE_PLATE")){

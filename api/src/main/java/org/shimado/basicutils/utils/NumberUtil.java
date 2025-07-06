@@ -46,7 +46,7 @@ public class NumberUtil {
     }
 
 
-    public boolean getChance(double chance){
+    public static boolean getChance(double chance){
         return chance > Math.random() * 100.0;
     }
 

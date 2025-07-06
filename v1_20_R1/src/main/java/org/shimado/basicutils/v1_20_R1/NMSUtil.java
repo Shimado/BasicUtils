@@ -2,6 +2,8 @@ package org.shimado.basicutils.v1_20_R1;
 
 
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.syncher.DataWatcher;
+import net.minecraft.network.syncher.DataWatcherObject;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.world.entity.Entity;
@@ -26,6 +28,14 @@ public class NMSUtil {
 
     public static void sendPacket(Player player, Packet packet){
         getEntityPlayer(player).c.a(packet);
+    }
+
+    public static DataWatcher getDataWatcher(Entity entity){
+        return entity.aj();
+    }
+
+    public static void setWatcher(DataWatcher watcher, DataWatcherObject<Byte> field, byte bytes){
+        watcher.a(field, bytes);
     }
 
 }

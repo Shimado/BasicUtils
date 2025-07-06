@@ -1,5 +1,4 @@
-package org.shimado.basicutils.v1_20_R2;
-
+package org.shimado.basicutils.v1_21_R5;
 
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.syncher.DataWatcher;
@@ -9,8 +8,8 @@ import net.minecraft.server.level.WorldServer;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_21_R5.CraftWorld;
+import org.bukkit.craftbukkit.v1_21_R5.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 public class NMSUtil {
@@ -20,7 +19,7 @@ public class NMSUtil {
     }
 
     public static int getEntityID(Entity entity){
-        return entity.ah();
+        return entity.ar();
     }
 
     public static WorldServer getWorld(Location loc){
@@ -28,11 +27,11 @@ public class NMSUtil {
     }
 
     public static void sendPacket(Player player, Packet packet){
-        ((ServerCommonPacketListenerImpl) getEntityPlayer(player).c).a(packet, null);
+        ((ServerCommonPacketListenerImpl) getEntityPlayer(player).g).b(packet);
     }
 
     public static DataWatcher getDataWatcher(Entity entity){
-        return entity.al();
+        return entity.au();
     }
 
     public static void setWatcher(DataWatcher watcher, DataWatcherObject<Byte> field, byte bytes){
