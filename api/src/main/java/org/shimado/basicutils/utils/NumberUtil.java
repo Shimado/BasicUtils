@@ -46,6 +46,28 @@ public class NumberUtil {
     }
 
 
+    public static boolean inRangeInt(int number, int min, int max){
+        return number >= min && number <= max;
+    }
+
+    public static boolean inRangeInt(String numberString, int min, int max){
+        if(!isInt(numberString)) return false;
+        int number = Integer.parseInt(numberString);
+        return number >= min && number <= max;
+    }
+
+
+    public static boolean inRangeDouble(double number, double min, double max){
+        return number >= min && number <= max;
+    }
+
+    public static boolean inRangeDouble(String numberString, double min, double max){
+        if(!isDouble(numberString)) return false;
+        double number = Double.parseDouble(numberString);
+        return number >= min && number <= max;
+    }
+
+
     public static boolean getChance(double chance){
         return chance > Math.random() * 100.0;
     }

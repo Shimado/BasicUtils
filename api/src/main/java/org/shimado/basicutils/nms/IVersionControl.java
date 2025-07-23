@@ -11,6 +11,7 @@ import org.bukkit.map.MapCanvas;
 import org.shimado.basicutils.instances.Pair;
 
 import java.awt.*;
+import java.util.List;
 import java.util.Map;
 
 public interface IVersionControl {
@@ -31,5 +32,6 @@ public interface IVersionControl {
     void removeEntity(Object stand);
     void rotateStand(Object stand, int angle);
     void spawnArmorStandToPlayer(Player player, Object stand, ItemStack item, Object packet);
+    Object createItem(List<Player> players, Location loc, ItemStack itemToDrop, double vectorX, double vectorY, double vectorZ);
 
 }

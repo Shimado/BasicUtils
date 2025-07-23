@@ -17,6 +17,7 @@ import org.shimado.basicutils.nms.IVersionControl;
 import java.awt.*;
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class VersionInstance implements IVersionControl {
@@ -225,6 +226,18 @@ public class VersionInstance implements IVersionControl {
 
         //ОТПРАВКА ПАКЕТА НА ИНВИЗ И УДАЛЕНИЕ ПЛОЩАДКИ
         NMSUtil.sendPacket(player, (PacketPlayOutEntityMetadata) packetRaw);
+    }
+
+
+    @Override
+    public Object createItem(List<Player> players, Location loc, ItemStack itemToDrop, double vectorX, double vectorY, double vectorZ) {
+        EntityItem item = new EntityItem(NMSUtil.getWorld(loc), loc.getX(), loc.getY(), loc.getZ(), CraftItemStack.asNMSCopy(itemToDrop));
+        item.f(vectorX, vectorY, vectorZ);
+        Packet spawnPacket = new PacketPlayOutSpawnEntity(item, 1);
+        for(Player p : players){
+            NMSUtil.sendPacket(p, spawnPacket);
+        }
+        return item;
     }
 
 }

@@ -8,11 +8,11 @@ import java.util.Arrays;
 public class PermissionUtil {
 
     public static boolean hasAccess(Player player, String... permissions){
-        return player.isOp() || Arrays.stream(permissions).anyMatch(p -> player.hasPermission(p));
+        return player.isOp() || Arrays.stream(permissions).anyMatch(p -> p != null && !p.isEmpty() && player.hasPermission(p));
     }
 
     public static boolean hasAccess(CommandSender sender, String... permissions){
-        return sender.isOp() || Arrays.stream(permissions).anyMatch(p -> sender.hasPermission(p));
+        return sender.isOp() || Arrays.stream(permissions).anyMatch(p -> p != null && !p.isEmpty() && sender.hasPermission(p));
     }
 
 

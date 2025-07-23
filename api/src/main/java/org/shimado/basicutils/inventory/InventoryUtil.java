@@ -92,16 +92,44 @@ public class InventoryUtil {
     }
 
 
+    public static boolean isHaveFreeSlotsForItem(Player player, ItemStack item){
+        ItemStack chipClone = CreateItemUtil.getCloneAmount1(item);
+        int amountLeft = item.getAmount();
+
+        for(ItemStack it : player.getInventory().getStorageContents()){
+            if(it == null){
+                return true;
+            }
+
+            ItemStack itClone = CreateItemUtil.getCloneAmount1(it);
+
+            if(chipClone.equals(itClone)){
+                amountLeft -= it.getAmount();
+                if(amountLeft <= 0) return true;
+            }
+        }
+
+        return false;
+    }
+
+
     @FunctionalInterface
     public interface InventoryLogic{
         void run(Inventory inv);
     }
 
-    public static void createGUI(Player player, InvSessionInstance session, int sizeGUI, String titleGUI, Map<Integer, List<Object>> emptySlots, InventoryLogic logic){
+    public static void createGUI(Player player, InvSessionInstance session, int sizeGUI, String titleGUI, Object emptySlotsMap, InventoryLogic logic){
         session.setChangingPage(true);
         Inventory inv = Bukkit.createInventory(null, 9 * sizeGUI, ColorUtil.getColor(titleGUI));
         session.setInv(inv);
-        emptySlots.forEach((slot, materials) -> InventoryUtil.setItemToGUI(inv, slot, materials.get(0), " ", new ArrayList<>(), false, (int) materials.get(1), true));
+        ((Map<Integer, Object>) emptySlotsMap).forEach((slot, materials) -> {
+            if(materials instanceof ItemStack){
+                setItemToGUI(inv, slot, (ItemStack) materials);
+            }
+            else{
+                setItemToGUI(inv, slot, ((List<Object>) materials).get(0), " ", new ArrayList<>(), false, (int) ((List<Object>) materials).get(1), true);
+            }
+        });
         logic.run(inv);
         player.openInventory(inv);
         session.setChangingPage(false);

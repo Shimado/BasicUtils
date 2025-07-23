@@ -24,6 +24,21 @@ public class EconomyUtil {
     private UserManager votingPluginAPI;
 
 
+    public boolean isVaultEnabled(){
+        return eco != null;
+    }
+
+
+    public boolean isPlayerPointsEnabled(){
+        return playerPointsAPI != null;
+    }
+
+
+    public boolean isVotingPluginEnabled(){
+        return votingPluginAPI != null;
+    }
+
+
     private void initEconomy(boolean useVault, boolean usePlayerPoints, boolean useVotingPlugin){
         if(useVault){
             initVault();
@@ -73,6 +88,43 @@ public class EconomyUtil {
         }
 
         this.votingPluginAPI = VotingPluginMain.getPlugin().getVotingPluginUserManager();
+    }
+
+
+    public double getBalance(UUID playerUUID){
+        if(this.eco != null){
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUUID);
+            return offlinePlayer == null ? 0.0 : this.eco.getBalance(offlinePlayer);
+        }
+        else if(this.playerPointsAPI != null){
+            return this.playerPointsAPI.lookAsync(playerUUID).getNumberOfDependents();
+        }
+        else if(this.votingPluginAPI != null){
+            VotingPluginUser votingPluginUser = this.votingPluginAPI.getVotingPluginUser(playerUUID);
+            return votingPluginUser == null ? 0.0 : this.votingPluginAPI.getVotingPluginUser(playerUUID).getPoints();
+        }
+        return 0.0;
+    }
+
+
+    public void setBalance(UUID playerUUID, double amount) {
+        if(amount == 0.0) return;
+        if(this.eco != null){
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUUID);
+            if(offlinePlayer != null){
+                removeBalance(playerUUID, getBalance(playerUUID));
+                this.eco.depositPlayer(offlinePlayer, amount);
+            }
+        }
+        else if(this.playerPointsAPI != null){
+            this.playerPointsAPI.setAsync(playerUUID, (int) Math.floor(amount));
+        }
+        else if(this.votingPluginAPI != null){
+            VotingPluginUser votingPluginUser = this.votingPluginAPI.getVotingPluginUser(playerUUID);
+            if(votingPluginUser != null){
+                votingPluginUser.setPoints((int) Math.floor(amount));
+            }
+        }
     }
 
 

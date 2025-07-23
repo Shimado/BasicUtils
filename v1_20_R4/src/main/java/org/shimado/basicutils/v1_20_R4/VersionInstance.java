@@ -10,6 +10,7 @@ import net.minecraft.network.syncher.DataWatcherObject;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EnumItemSlot;
 import net.minecraft.world.entity.decoration.EntityArmorStand;
+import net.minecraft.world.entity.item.EntityItem;
 import net.minecraft.world.entity.projectile.EntityFireworks;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
@@ -31,6 +32,7 @@ import java.awt.*;
 import java.awt.Color;
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class VersionInstance implements IVersionControl {
@@ -241,6 +243,17 @@ public class VersionInstance implements IVersionControl {
 
         //ОТПРАВКА ПАКЕТА НА ИНВИЗ И УДАЛЕНИЕ ПЛОЩАДКИ
         NMSUtil.sendPacket(player, (PacketPlayOutEntityMetadata) packetRaw);
+    }
+
+
+    @Override
+    public Object createItem(List<Player> players, Location loc, ItemStack itemToDrop, double vectorX, double vectorY, double vectorZ) {
+        EntityItem item = new EntityItem(NMSUtil.getWorld(loc), loc.getX(), loc.getY(), loc.getZ(), CraftItemStack.asNMSCopy(itemToDrop), vectorX, vectorY, vectorZ);
+        Packet spawnPacket = new PacketPlayOutSpawnEntity(item);
+        for(Player p : players){
+            NMSUtil.sendPacket(p, spawnPacket);
+        }
+        return item;
     }
 
 }
