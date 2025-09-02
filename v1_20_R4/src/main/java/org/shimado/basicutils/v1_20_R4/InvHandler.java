@@ -23,7 +23,7 @@ public class InvHandler implements IInvHandler {
     public boolean checkIfPluginInventory(InventoryView inventoryView, List<String> listOfTitles){
         return inventoryView != null && inventoryView.getTitle() != null
                 && inventoryView.getTopInventory() != null
-                && listOfTitles.contains(ColorUtil.getColor(inventoryView.getTitle()));
+                && listOfTitles.stream().anyMatch(it -> inventoryView.getTitle().equals(ColorUtil.getColor(it)));
     }
 
 

@@ -175,7 +175,7 @@ public class VersionInstance implements IVersionControl {
             //УГОЛ ГОЛОВЫ
             Field angle = EntityArmorStand.class.getDeclaredField("bC");
             angle.setAccessible(true);
-            watcher.a((DataWatcherObject<net.minecraft.core.Vector3f>) angle.get(stand), new net.minecraft.core.Vector3f(angleX, angleY, angleZ));
+            watcher.b((DataWatcherObject<net.minecraft.core.Vector3f>) angle.get(stand), new net.minecraft.core.Vector3f(angleX, angleY, angleZ));
 
             //ИНВИЗ ДЛЯ АРМОРСТЕНДА
             Field invis = Entity.class.getDeclaredField("an");
@@ -251,8 +251,10 @@ public class VersionInstance implements IVersionControl {
     public Object createItem(List<Player> players, Location loc, ItemStack itemToDrop, double vectorX, double vectorY, double vectorZ) {
         EntityItem item = new EntityItem(NMSUtil.getWorld(loc), loc.getX(), loc.getY(), loc.getZ(), CraftItemStack.asNMSCopy(itemToDrop), vectorX, vectorY, vectorZ);
         Packet spawnPacket = new PacketPlayOutSpawnEntity(item);
+        Packet metaPacket = new PacketPlayOutEntityMetadata(NMSUtil.getEntityID(item), NMSUtil.getDataWatcher(item).b());
         for(Player p : players){
             NMSUtil.sendPacket(p, spawnPacket);
+            NMSUtil.sendPacket(p, metaPacket);
         }
         return item;
     }

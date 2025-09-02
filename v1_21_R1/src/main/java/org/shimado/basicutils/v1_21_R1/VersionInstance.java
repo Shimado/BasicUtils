@@ -250,8 +250,10 @@ public class VersionInstance implements IVersionControl {
     public Object createItem(List<Player> players, Location loc, ItemStack itemToDrop, double vectorX, double vectorY, double vectorZ) {
         EntityItem item = new EntityItem(NMSUtil.getWorld(loc), loc.getX(), loc.getY(), loc.getZ(), CraftItemStack.asNMSCopy(itemToDrop), vectorX, vectorY, vectorZ);
         Packet spawnPacket = new PacketPlayOutSpawnEntity(NMSUtil.getEntityID(item), item.cz(), loc.getX(), loc.getY(), loc.getZ(), item.dG(), item.dE(), item.am(), 1, item.dr(), item.ct());
+        Packet metaPacket = new PacketPlayOutEntityMetadata(NMSUtil.getEntityID(item), NMSUtil.getDataWatcher(item).b());
         for(Player p : players){
             NMSUtil.sendPacket(p, spawnPacket);
+            NMSUtil.sendPacket(p, metaPacket);
         }
         return item;
     }

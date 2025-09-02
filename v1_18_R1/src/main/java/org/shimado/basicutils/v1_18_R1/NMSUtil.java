@@ -35,7 +35,7 @@ public class NMSUtil {
     }
 
     public static void setWatcher(DataWatcher watcher, DataWatcherObject<Byte> field, byte bytes){
-        watcher.a(field, bytes);
+        watcher.b(field, bytes);
     }
 
 }

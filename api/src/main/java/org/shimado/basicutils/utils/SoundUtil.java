@@ -75,6 +75,11 @@ public class SoundUtil {
         player.playSound(player.getLocation(), getSound("BLOCK.AMETHYST_BLOCK.CHIME", "BLOCK_AMETHYST_BLOCK_CHIME"), 2f, 1f);
     }
 
+    public static void sell(Player player) {
+        player.playSound(player.getLocation(), getSound("ENTITY.VILLAGER.YES", "ENTITY_VILLAGER_YES"), 1f, 0.9f);
+        player.playSound(player.getLocation(), getSound("ENTITY.EXPERIENCE_ORB.PICKUP", "ENTITY_EXPERIENCE_ORB_PICKUP", "ORB_PICKUP"), 1f, 1f);
+    }
+
     public static void like(Player player) {
         player.playSound(player.getLocation(), getSound("ENTITY.FIREWORK_ROCKET.TWINKLE_FAR", "ENTITY_FIREWORK_ROCKET_TWINKLE_FAR"), 1f, 0.7f);
     }

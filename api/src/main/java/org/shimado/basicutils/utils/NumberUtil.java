@@ -1,9 +1,12 @@
 package org.shimado.basicutils.utils;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class NumberUtil {
 
@@ -12,7 +15,7 @@ public class NumberUtil {
     }
 
     public static double randomDouble(double min, double max) {
-        return min + (Math.floor(Math.random() * (max - min)));
+        return min + (Math.random() * (max - min));
     }
 
 
@@ -36,13 +39,19 @@ public class NumberUtil {
     }
 
 
-    public static String getIntNumber(double number) {
-        String[] chars = String.valueOf(number).replace(",", ".").split("\\.");
-        if (chars.length == 3 && !chars[2].startsWith("0")) {
-            return String.valueOf(number);
-        } else {
-            return chars[0];
+    public static String getIntNumber(double number, boolean isFormatting) {
+        if(number == 0) return "0";
+        DecimalFormat df = new DecimalFormat(isFormatting ? "#,###.##" : "#.##", new DecimalFormatSymbols(Locale.US));
+        String formatted = df.format(number);
+
+        if (formatted.contains(".")) {
+            formatted = formatted.replaceAll("0*$", "");
+            if (formatted.endsWith(".")) {
+                formatted = formatted.substring(0, formatted.length() - 1);
+            }
         }
+
+        return formatted;
     }
 
 

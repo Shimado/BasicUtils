@@ -7,6 +7,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.DataWatcher;
 import net.minecraft.network.syncher.DataWatcherObject;
+import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EnumItemSlot;
 import net.minecraft.world.entity.decoration.EntityArmorStand;
@@ -14,6 +15,7 @@ import net.minecraft.world.entity.item.EntityItem;
 import net.minecraft.world.entity.projectile.EntityFireworks;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.v1_21_R5.CraftWorld;
 import org.bukkit.craftbukkit.v1_21_R5.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_21_R5.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
@@ -26,6 +28,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.shimado.basicutils.BasicUtils;
 import org.shimado.basicutils.instances.Pair;
 import org.shimado.basicutils.nms.IVersionControl;
+import org.shimado.basicutils.utils.NumberUtil;
 
 import java.awt.*;
 import java.awt.Color;
@@ -252,8 +255,10 @@ public class VersionInstance implements IVersionControl {
     public Object createItem(List<Player> players, Location loc, ItemStack itemToDrop, double vectorX, double vectorY, double vectorZ) {
         EntityItem item = new EntityItem(NMSUtil.getWorld(loc), loc.getX(), loc.getY(), loc.getZ(), CraftItemStack.asNMSCopy(itemToDrop), vectorX, vectorY, vectorZ);
         Packet spawnPacket = new PacketPlayOutSpawnEntity(NMSUtil.getEntityID(item), item.cK(), loc.getX(), loc.getY(), loc.getZ(), item.dP(), item.dR(), item.ap(), 1, item.dA(), item.cE());
+        Packet metaPacket = new PacketPlayOutEntityMetadata(NMSUtil.getEntityID(item), NMSUtil.getDataWatcher(item).b());
         for(Player p : players){
             NMSUtil.sendPacket(p, spawnPacket);
+            NMSUtil.sendPacket(p, metaPacket);
         }
         return item;
     }

@@ -3,6 +3,7 @@ package org.shimado.basicutils.utils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.shimado.basicutils.BasicUtils;
+import org.shimado.basicutils.enums.ERecords;
 
 import java.util.Arrays;
 import java.util.List;
@@ -83,6 +84,13 @@ public class MaterialUtil {
     }
 
 
+    public static ItemStack getRecord(String recordString){
+        ERecords record = ERecords.findByName(recordString);
+        if(record == null) return new ItemStack(Material.APPLE);
+        return new ItemStack(record.getMaterial());
+    }
+
+
     public static ItemStack getItemByName(String name) {
 
         if(name.contains("PLAYER_HEAD")){
@@ -123,6 +131,10 @@ public class MaterialUtil {
 
         if(name.equals("HEAVY_WEIGHTED_PRESSURE_PLATE")){
             return getIronPlate();
+        }
+
+        if(name.contains("MUSIC_DISC_")){
+            return getRecord(name);
         }
 
         try {
