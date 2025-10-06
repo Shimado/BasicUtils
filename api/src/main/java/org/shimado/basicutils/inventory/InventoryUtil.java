@@ -67,7 +67,7 @@ public class InventoryUtil {
 
 
     public static void setItemToGUI(Inventory inv, int slot, Object material, String name, List<String> lore, boolean enchant, int customModelData, boolean hideName){
-        if(slot != -1){
+        if(slot >= 0 && slot < inv.getSize()){
             inv.setItem(slot, CreateItemUtil.create(material, name, lore, enchant, customModelData, hideName));
         }
     }
@@ -78,17 +78,13 @@ public class InventoryUtil {
 
 
     public static void setItemToGUI(Inventory inv, int slot, ItemStack item){
-        if(slot != -1){
+        if(slot >= 0 && slot < inv.getSize()){
             inv.setItem(slot, item);
         }
     }
 
     public static void setItemToGUI(Inventory inv, List<Integer> slots, ItemStack item){
-        slots.forEach(s -> {
-            if(s != -1){
-                inv.setItem(s, item);
-            }
-        });
+        slots.forEach(s -> setItemToGUI(inv, s, item));
     }
 
 

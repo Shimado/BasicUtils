@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CreateItemUtil {
 
@@ -203,6 +204,35 @@ public class CreateItemUtil {
 
     public static String getItemTag(ItemStack item, String tag){
         return BasicUtils.getVersionControl().getVersionControl().getTag(item, tag);
+    }
+
+
+    public static ItemStack replaceItemPlaceholders(ItemStack item, String title, List<String> lore, Map<String, String> placeholders){
+        if(item == null) return null;
+        ItemStack itemToEdit = item.clone();
+        ItemMeta meta = itemToEdit.getItemMeta();
+
+        String newTitle = title;
+        List<String> newLore = new ArrayList<>();
+
+        for(Map.Entry<String, String> a : placeholders.entrySet()){
+            if(newTitle != null){
+                newTitle = newTitle.replace(a.getKey(), a.getValue());
+            }
+            if(lore != null){
+                newLore = newLore.stream().map(it -> it.replace(a.getKey(), a.getValue())).collect(Collectors.toList());
+            }
+        }
+
+        if(newTitle != null){
+            meta.setDisplayName(ColorUtil.getColor(newTitle));
+        }
+        if(newLore != null){
+            meta.setLore(ColorUtil.getColorList(newLore));
+        }
+
+        itemToEdit.setItemMeta(meta);
+        return itemToEdit;
     }
 
 }

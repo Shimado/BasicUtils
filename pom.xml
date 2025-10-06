@@ -13,6 +13,7 @@
     <modules>
         <module>connector</module>
         <module>api</module>
+        <module>v1_21_R6</module>
         <module>v1_21_R5</module>
         <module>v1_21_R4</module>
         <module>v1_21_R3</module>
@@ -40,7 +41,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <revision>1.2.13</revision>
+        <revision>1.2.18</revision>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -85,7 +86,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.21.8-R0.1-SNAPSHOT</version>
+            <version>1.21.9-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
