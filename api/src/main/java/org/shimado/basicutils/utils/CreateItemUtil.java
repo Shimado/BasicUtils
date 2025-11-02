@@ -189,7 +189,7 @@ public class CreateItemUtil {
     }
 
 
-    public boolean isSameItems(ItemStack item1, ItemStack item2, String tag){
+    public static boolean isSameItems(ItemStack item1, ItemStack item2, String tag){
         if(item1 == null || item2 == null || item1.getType().equals(Material.AIR)) return false;
         ItemStack itemClone1 = getCloneAmount1(item1);
         ItemStack itemClone2 = getCloneAmount1(item2);

@@ -14,8 +14,16 @@ public class NumberUtil {
         return min + ((int) Math.floor(Math.random() * (max - min)));
     }
 
+    public static int randomIntInclusive(int min, int max) {
+        return min + ((int) Math.floor(Math.random() * ((max + 1) - min)));
+    }
+
     public static double randomDouble(double min, double max) {
         return min + (Math.random() * (max - min));
+    }
+
+    public static double randomDoubleInclusive(double min, double max) {
+        return min + (Math.random() * ((max + 1) - min));
     }
 
 

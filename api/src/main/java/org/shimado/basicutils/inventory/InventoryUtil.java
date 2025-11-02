@@ -8,6 +8,8 @@ import org.bukkit.inventory.ItemStack;
 import org.shimado.basicutils.utils.ColorUtil;
 import org.shimado.basicutils.utils.CreateItemUtil;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +65,36 @@ public class InventoryUtil {
             }
         }
         itemsToGive.forEach(it -> player.getWorld().dropItemNaturally(player.getLocation().clone().add(0, 1, 0), it));
+    }
+
+
+    public static boolean removeSameItemsFromInv(@Nullable ItemStack item, @Nonnull Inventory inv){
+        if(item == null || item.getAmount() <= 0) return false;
+
+        int total = item.getAmount();
+
+        List<ItemStack> itemsToRemove = new ArrayList<>();
+
+        for(ItemStack it : inv.getContents()) {
+            if(!item.getType().equals(it.getType())) continue;
+            if(!CreateItemUtil.isSameItems(item, it, null)) continue;
+
+            if(it.getAmount() >= total){
+                it.setAmount(it.getAmount() - total);
+                itemsToRemove.forEach(toDel -> toDel.setAmount(0));
+                return true;
+            }
+            else if(it.getAmount() < total){
+                total -= it.getAmount();
+                itemsToRemove.add(it);
+                if(total <= 0) {
+                    itemsToRemove.forEach(toDel -> toDel.setAmount(0));
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
 

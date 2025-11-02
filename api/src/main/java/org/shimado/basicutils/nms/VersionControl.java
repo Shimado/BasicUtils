@@ -76,7 +76,8 @@ public class VersionControl {
                 case "1.21.6":
                 case "1.21.7":
                 case "1.21.8": version = "v1_21_R5"; break;
-                case "1.21.9": version = "v1_21_R6"; break;
+                case "1.21.9":
+                case "1.21.10": version = "v1_21_R6"; break;
             }
             try {
                 versionControl = (IVersionControl) Class.forName("org.shimado.basicutils." + version + ".VersionInstance").getConstructor().newInstance(null);
