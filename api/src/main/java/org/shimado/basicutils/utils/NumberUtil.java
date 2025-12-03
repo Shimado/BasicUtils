@@ -1,10 +1,10 @@
 package org.shimado.basicutils.utils;
 
+import javax.annotation.Nonnull;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -18,6 +18,7 @@ public class NumberUtil {
         return min + ((int) Math.floor(Math.random() * ((max + 1) - min)));
     }
 
+
     public static double randomDouble(double min, double max) {
         return min + (Math.random() * (max - min));
     }
@@ -27,7 +28,7 @@ public class NumberUtil {
     }
 
 
-    public static boolean isInt(String number){
+    public static boolean isInt(@Nonnull String number){
         try {
             Integer.valueOf(number);
             return true;
@@ -37,7 +38,7 @@ public class NumberUtil {
     }
 
 
-    public static boolean isDouble(String number){
+    public static boolean isDouble(@Nonnull String number){
         try {
             Double.valueOf(number);
             return true;
@@ -47,6 +48,7 @@ public class NumberUtil {
     }
 
 
+    @Nonnull
     public static String getIntNumber(double number, boolean isFormatting) {
         if(number == 0) return "0";
         DecimalFormat df = new DecimalFormat(isFormatting ? "#,###.##" : "#.##", new DecimalFormatSymbols(Locale.US));
@@ -67,10 +69,9 @@ public class NumberUtil {
         return number >= min && number <= max;
     }
 
-    public static boolean inRangeInt(String numberString, int min, int max){
+    public static boolean inRangeInt(@Nonnull String numberString, int min, int max){
         if(!isInt(numberString)) return false;
-        int number = Integer.parseInt(numberString);
-        return number >= min && number <= max;
+        return inRangeInt(Integer.parseInt(numberString), min, max);
     }
 
 
@@ -78,19 +79,23 @@ public class NumberUtil {
         return number >= min && number <= max;
     }
 
-    public static boolean inRangeDouble(String numberString, double min, double max){
+    public static boolean inRangeDouble(@Nonnull String numberString, double min, double max){
         if(!isDouble(numberString)) return false;
-        double number = Double.parseDouble(numberString);
-        return number >= min && number <= max;
+        return inRangeDouble(Double.parseDouble(numberString), min, max);
     }
 
+
+    public static boolean getChance(double chance, double maxPercent){
+        return chance > Math.random() * maxPercent;
+    }
 
     public static boolean getChance(double chance){
-        return chance > Math.random() * 100.0;
+        return getChance(chance, 100.0);
     }
 
 
-    public static String getDateTimeFormat(Date date, String dateFormat){
+    @Nonnull
+    public static String getDateTimeFormat(@Nonnull Date date, @Nonnull String dateFormat){
         return new SimpleDateFormat(dateFormat).format(date);
     }
 

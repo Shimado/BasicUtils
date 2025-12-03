@@ -1,11 +1,9 @@
 package org.shimado.basicutils.license;
 
 import org.bukkit.plugin.Plugin;
-import org.shimado.basicutils.BasicUtils;
 import org.shimado.basicutils.utils.IPUtil;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class LicenseHandler {
 

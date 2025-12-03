@@ -11,17 +11,18 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.shimado.basicutils.BasicUtils;
 
+import javax.annotation.Nonnull;
 import java.util.UUID;
 
 public class EconomyUtil {
 
-    public EconomyUtil(boolean useVault, boolean usePlayerPoints, boolean useVotingPlugin) {
-        reload(useVault, usePlayerPoints, useVotingPlugin);
-    }
-
     private Economy eco;
     private PlayerPointsAPI playerPointsAPI;
     private UserManager votingPluginAPI;
+
+    public EconomyUtil(boolean useVault, boolean usePlayerPoints, boolean useVotingPlugin) {
+        reload(useVault, usePlayerPoints, useVotingPlugin);
+    }
 
 
     public boolean isVaultEnabled(){
@@ -40,6 +41,10 @@ public class EconomyUtil {
 
 
     private void initEconomy(boolean useVault, boolean usePlayerPoints, boolean useVotingPlugin){
+        eco = null;
+        playerPointsAPI = null;
+        votingPluginAPI = null;
+
         if(useVault){
             initVault();
         }
@@ -53,7 +58,7 @@ public class EconomyUtil {
 
 
     private void initVault() {
-        if (BasicUtils.getPlugin().getServer().getPluginManager().getPlugin("Vault") == null) {
+        if (!PluginsHook.isVault()) {
             BasicUtils.getPlugin().getLogger().severe("Vault is not exists!");
             return;
         }
@@ -63,9 +68,9 @@ public class EconomyUtil {
             return;
         }
 
-        this.eco = rsp.getProvider();
+        eco = rsp.getProvider();
 
-        if (this.eco == null) {
+        if (eco == null) {
             BasicUtils.getPlugin().getLogger().severe("Economy plugin for Vault is not exists!");
         }
     }
@@ -77,7 +82,7 @@ public class EconomyUtil {
             return;
         }
 
-        this.playerPointsAPI = PlayerPoints.getInstance().getAPI();
+        playerPointsAPI = PlayerPoints.getInstance().getAPI();
     }
 
 
@@ -87,40 +92,39 @@ public class EconomyUtil {
             return;
         }
 
-        this.votingPluginAPI = VotingPluginMain.getPlugin().getVotingPluginUserManager();
+        votingPluginAPI = VotingPluginMain.getPlugin().getVotingPluginUserManager();
     }
 
 
-    public double getBalance(UUID playerUUID){
-        if(this.eco != null){
+    public double getBalance(@Nonnull UUID playerUUID){
+        if(eco != null){
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUUID);
-            return offlinePlayer == null ? 0.0 : this.eco.getBalance(offlinePlayer);
+            return offlinePlayer == null ? 0.0 : eco.getBalance(offlinePlayer);
         }
-        else if(this.playerPointsAPI != null){
-            return this.playerPointsAPI.lookAsync(playerUUID).getNumberOfDependents();
+        else if(playerPointsAPI != null){
+            return playerPointsAPI.lookAsync(playerUUID).getNumberOfDependents();
         }
-        else if(this.votingPluginAPI != null){
-            VotingPluginUser votingPluginUser = this.votingPluginAPI.getVotingPluginUser(playerUUID);
-            return votingPluginUser == null ? 0.0 : this.votingPluginAPI.getVotingPluginUser(playerUUID).getPoints();
+        else if(votingPluginAPI != null){
+            VotingPluginUser votingPluginUser = votingPluginAPI.getVotingPluginUser(playerUUID);
+            return votingPluginUser == null ? 0.0 : votingPluginAPI.getVotingPluginUser(playerUUID).getPoints();
         }
         return 0.0;
     }
 
 
-    public void setBalance(UUID playerUUID, double amount) {
-        if(amount == 0.0) return;
-        if(this.eco != null){
+    public void setBalance(@Nonnull UUID playerUUID, double amount) {
+        if(eco != null){
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUUID);
             if(offlinePlayer != null){
                 removeBalance(playerUUID, getBalance(playerUUID));
-                this.eco.depositPlayer(offlinePlayer, amount);
+                eco.depositPlayer(offlinePlayer, amount);
             }
         }
-        else if(this.playerPointsAPI != null){
-            this.playerPointsAPI.setAsync(playerUUID, (int) Math.floor(amount));
+        else if(playerPointsAPI != null){
+            playerPointsAPI.setAsync(playerUUID, (int) Math.floor(amount));
         }
-        else if(this.votingPluginAPI != null){
-            VotingPluginUser votingPluginUser = this.votingPluginAPI.getVotingPluginUser(playerUUID);
+        else if(votingPluginAPI != null){
+            VotingPluginUser votingPluginUser = votingPluginAPI.getVotingPluginUser(playerUUID);
             if(votingPluginUser != null){
                 votingPluginUser.setPoints((int) Math.floor(amount));
             }
@@ -128,19 +132,19 @@ public class EconomyUtil {
     }
 
 
-    public void addBalance(UUID playerUUID, double amount) {
+    public void addBalance(@Nonnull UUID playerUUID, double amount) {
         if(amount == 0.0) return;
-        if(this.eco != null){
+        if(eco != null){
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUUID);
             if(offlinePlayer != null){
-                this.eco.depositPlayer(offlinePlayer, amount);
+                eco.depositPlayer(offlinePlayer, amount);
             }
         }
-        else if(this.playerPointsAPI != null){
-            this.playerPointsAPI.giveAsync(playerUUID, (int) Math.floor(amount));
+        else if(playerPointsAPI != null){
+            playerPointsAPI.giveAsync(playerUUID, (int) Math.floor(amount));
         }
-        else if(this.votingPluginAPI != null){
-            VotingPluginUser votingPluginUser = this.votingPluginAPI.getVotingPluginUser(playerUUID);
+        else if(votingPluginAPI != null){
+            VotingPluginUser votingPluginUser = votingPluginAPI.getVotingPluginUser(playerUUID);
             if(votingPluginUser != null){
                 votingPluginUser.addPoints((int) Math.floor(amount));
             }
@@ -148,19 +152,19 @@ public class EconomyUtil {
     }
 
 
-    public void removeBalance(UUID playerUUID, double amount) {
+    public void removeBalance(@Nonnull UUID playerUUID, double amount) {
         if(amount == 0.0) return;
-        if(this.eco != null){
+        if(eco != null){
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUUID);
             if(offlinePlayer != null){
-                this.eco.withdrawPlayer(offlinePlayer, amount);
+                eco.withdrawPlayer(offlinePlayer, amount);
             }
         }
-        else if(this.playerPointsAPI != null){
-            this.playerPointsAPI.takeAsync(playerUUID, (int) Math.floor(amount));
+        else if(playerPointsAPI != null){
+            playerPointsAPI.takeAsync(playerUUID, (int) Math.floor(amount));
         }
-        else if(this.votingPluginAPI != null){
-            VotingPluginUser votingPluginUser = this.votingPluginAPI.getVotingPluginUser(playerUUID);
+        else if(votingPluginAPI != null){
+            VotingPluginUser votingPluginUser = votingPluginAPI.getVotingPluginUser(playerUUID);
             if(votingPluginUser != null){
                 votingPluginUser.removePoints((int) Math.floor(amount));
             }
@@ -168,18 +172,17 @@ public class EconomyUtil {
     }
 
 
-    public boolean isHaveMoney(UUID playerUUID, double amount){
-        if(amount == 0.0) return true;
-        if(this.eco != null){
+    public boolean isHaveMoney(@Nonnull UUID playerUUID, double amount){
+        if(eco != null){
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUUID);
-            return offlinePlayer == null ? false : this.eco.getBalance(offlinePlayer) >= amount;
+            return offlinePlayer == null ? false : eco.getBalance(offlinePlayer) >= amount;
         }
-        else if(this.playerPointsAPI != null){
-            return this.playerPointsAPI.lookAsync(playerUUID).getNumberOfDependents() >= amount;
+        else if(playerPointsAPI != null){
+            return playerPointsAPI.lookAsync(playerUUID).getNumberOfDependents() >= amount;
         }
-        else if(this.votingPluginAPI != null){
-            VotingPluginUser votingPluginUser = this.votingPluginAPI.getVotingPluginUser(playerUUID);
-            return votingPluginUser == null ? false : this.votingPluginAPI.getVotingPluginUser(playerUUID).getPoints() >= amount;
+        else if(votingPluginAPI != null){
+            VotingPluginUser votingPluginUser = votingPluginAPI.getVotingPluginUser(playerUUID);
+            return votingPluginUser == null ? false : votingPluginAPI.getVotingPluginUser(playerUUID).getPoints() >= amount;
         }
         return true;
     }

@@ -3,30 +3,33 @@ package org.shimado.basicutils.inventory;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
+import javax.annotation.Nonnull;
+
 public class InvSessionInstance {
 
     private Inventory inv;
     private boolean changingPage = false;
 
+
+    public Inventory getInv(){
+        return inv;
+    }
+
     public void setInv(Inventory inv){
         this.inv = inv;
     }
 
-    public Inventory getInv(){
-        return this.inv;
-    }
 
+    public boolean isChangingPage(){
+        return changingPage;
+    }
 
     public void setChangingPage(boolean changingPage){
         this.changingPage = changingPage;
     }
 
-    public boolean isChangingPage(){
-        return this.changingPage;
-    }
 
-
-    public void closeInventory(Player player){
+    public void closeInventory(@Nonnull Player player){
         this.setChangingPage(true);
         player.closeInventory();
         this.setChangingPage(false);

@@ -4,6 +4,7 @@ import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.util.MessageUtil;
 import org.shimado.basicutils.BasicUtils;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,24 +18,23 @@ public class DiscordUtil {
 
 
     public boolean isActive(){
-        return this.isDiscordSRVEnabled;
+        return isDiscordSRVEnabled;
     }
 
 
     private void setupDiscordSRV(boolean useDiscordSRV) {
+        isDiscordSRVEnabled = useDiscordSRV;
         if(!useDiscordSRV) return;
 
-        if(BasicUtils.getPlugin().getServer().getPluginManager().getPlugin("DiscordSRV") == null) {
+        if(!PluginsHook.isDiscordSRV()) {
             BasicUtils.getPlugin().getLogger().severe("DiscordSRV not found!");
-            return;
+            isDiscordSRVEnabled = false;
         }
-
-        this.isDiscordSRVEnabled = true;
     }
 
 
-    public void sendMessage(String textChannel, List<String> messages){
-        if(this.isDiscordSRVEnabled){
+    public void sendMessage(@Nonnull String textChannel, @Nonnull List<String> messages){
+        if(isDiscordSRVEnabled){
             github.scarsz.discordsrv.util.DiscordUtil.sendMessage(
                     DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName(textChannel),
                     MessageUtil.translateLegacy(messages.stream().collect(Collectors.joining("\r\n")))

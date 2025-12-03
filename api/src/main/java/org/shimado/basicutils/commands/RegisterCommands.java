@@ -7,13 +7,14 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.Plugin;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.List;
 
 public class RegisterCommands<T extends CommandExecutor & TabCompleter> {
 
-    public RegisterCommands(Plugin plugin, T clazz, List<String> commands){
+    public RegisterCommands(@Nonnull Plugin plugin, @Nonnull T clazz, @Nonnull List<String> commands){
         try {
             for(String cmd : commands){
                 final Field bukkitCommandMap = Bukkit.getServer().getClass().getDeclaredField("commandMap");
@@ -29,7 +30,6 @@ public class RegisterCommands<T extends CommandExecutor & TabCompleter> {
                 command.setUsage("/" + cmd);
                 commandMap.register(plugin.getDescription().getName(), command);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }

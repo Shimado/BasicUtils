@@ -4,12 +4,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.List;
 
 public class WorldUtil {
 
-    public static World checkIfWorldExistsAndLoad(String worldName){
+    @Nullable
+    public static World checkIfWorldExistsAndLoad(@Nonnull String worldName){
         World world = Bukkit.getWorld(worldName);
         if(world == null){
             for(File file : Bukkit.getServer().getWorldContainer().listFiles()){

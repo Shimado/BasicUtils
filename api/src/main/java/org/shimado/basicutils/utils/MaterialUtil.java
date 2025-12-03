@@ -5,14 +5,18 @@ import org.bukkit.inventory.ItemStack;
 import org.shimado.basicutils.BasicUtils;
 import org.shimado.basicutils.enums.ERecords;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
 public class MaterialUtil {
 
-    private static List<String> colors = Arrays.asList("WHITE", "ORANGE", "MAGENTA", "LIGHT_BLUE", "YELLOW", "LIME", "PINK", "GRAY", "LIGHT_GRAY", "CYAN", "PURPLE", "BLUE", "BROWN", "GREEN", "RED", "BLACK");
+    private static final boolean isLegacy = BasicUtils.getVersionControl().isLegacy();
+    private static final List<String> colors = Arrays.asList("WHITE", "ORANGE", "MAGENTA", "LIGHT_BLUE", "YELLOW", "LIME", "PINK", "GRAY", "LIGHT_GRAY", "CYAN", "PURPLE", "BLUE", "BROWN", "GREEN", "RED", "BLACK");
 
-    public static Material getMaterial(String[] materials) {
+    @Nonnull
+    public static Material getMaterial(@Nonnull String[] materials) {
         for (String material : materials) {
             if (Material.getMaterial(material) != null) {
                 return Material.getMaterial(material);
@@ -22,76 +26,101 @@ public class MaterialUtil {
     }
 
 
+    @Nonnull
     public static ItemStack getHead(){
-        if(BasicUtils.getVersionControl().isLegacy()) return new ItemStack(Material.getMaterial("SKULL_ITEM"), 1, (short) 3);
+        if(isLegacy) return new ItemStack(Material.getMaterial("SKULL_ITEM"), 1, (short) 3);
         return new ItemStack(getMaterial((new String[]{"PLAYER_HEAD"})));
     }
 
+    @Nonnull
     public static ItemStack getSunflower(){
         return new ItemStack(getMaterial((new String[]{"SUNFLOWER", "DOUBLE_PLANT"})));
     }
 
+    @Nonnull
     public static ItemStack getFireWorks(){
         return new ItemStack(getMaterial((new String[]{"FIREWORKS", "FIREWORK", "FIREWORK_ROCKET"})));
     }
 
+    @Nonnull
     public static ItemStack getGoldPlate(){
         return new ItemStack(getMaterial((new String[]{"GOLD_PLATE", "LIGHT_WEIGHTED_PRESSURE_PLATE"})));
     }
 
+    @Nonnull
     public static ItemStack getIronPlate(){
         return new ItemStack(getMaterial((new String[]{"IRON_PLATE", "HEAVY_WEIGHTED_PRESSURE_PLATE"})));
     }
 
-    public static ItemStack getConcrete(String color){
-        if(BasicUtils.getVersionControl().isLegacy()){
-            return new ItemStack(Material.getMaterial("CONCRETE"), 1, (short) colors.indexOf(color));
-        }else{
-            return new ItemStack(Material.getMaterial(color + "_CONCRETE"));
+    @Nullable
+    public static ItemStack getConcrete(@Nonnull String color){
+        if(colors.contains(color.toUpperCase())){
+            if(isLegacy){
+                return new ItemStack(Material.getMaterial("CONCRETE"), 1, (short) colors.indexOf(color.toUpperCase()));
+            }else{
+                return new ItemStack(Material.getMaterial(color.toUpperCase() + "_CONCRETE"));
+            }
         }
+        return null;
     }
 
-    public static ItemStack getWool(String color){
-        if(BasicUtils.getVersionControl().isLegacy()){
-            return new ItemStack(Material.getMaterial("WOOL"), 1, (short) colors.indexOf(color));
-        }else{
-            return new ItemStack(Material.getMaterial(color + "_WOOL"));
+    @Nullable
+    public static ItemStack getWool(@Nonnull String color){
+        if(colors.contains(color.toUpperCase())){
+            if(isLegacy){
+                return new ItemStack(Material.getMaterial("WOOL"), 1, (short) colors.indexOf(color.toUpperCase()));
+            }else{
+                return new ItemStack(Material.getMaterial(color.toUpperCase() + "_WOOL"));
+            }
         }
+        return null;
     }
 
-    public static ItemStack getDye(String color){
-        if(BasicUtils.getVersionControl().isLegacy()){
-            return new ItemStack(Material.getMaterial("INK_SACK"), 1, (short) colors.indexOf(color));
-        }else{
-            return new ItemStack(Material.getMaterial(color + "_DYE"));
+    @Nullable
+    public static ItemStack getDye(@Nonnull String color){
+        if(colors.contains(color.toUpperCase())){
+            if(isLegacy){
+                return new ItemStack(Material.getMaterial("INK_SACK"), 1, (short) colors.indexOf(color.toUpperCase()));
+            }else{
+                return new ItemStack(Material.getMaterial(color.toUpperCase() + "_DYE"));
+            }
         }
+        return null;
     }
 
-    public static ItemStack getCarpet(String color){
-        if(BasicUtils.getVersionControl().isLegacy()){
-            return new ItemStack(Material.getMaterial("CARPET"), 1, (short) colors.indexOf(color));
-        }else{
-            return new ItemStack(Material.getMaterial(color + "_CARPET"));
+    @Nullable
+    public static ItemStack getCarpet(@Nonnull String color){
+        if(colors.contains(color.toUpperCase())){
+            if(isLegacy){
+                return new ItemStack(Material.getMaterial("CARPET"), 1, (short) colors.indexOf(color.toUpperCase()));
+            }else{
+                return new ItemStack(Material.getMaterial(color.toUpperCase() + "_CARPET"));
+            }
         }
+        return null;
     }
 
-    public static ItemStack getGlassPane(String color){
-        if(BasicUtils.getVersionControl().isLegacy()){
-            return new ItemStack(Material.getMaterial("STAINED_GLASS_PANE"), 1, (short) colors.indexOf(color));
-        }else{
-            return new ItemStack(Material.getMaterial(color + "_STAINED_GLASS_PANE"));
+    @Nullable
+    public static ItemStack getGlassPane(@Nonnull String color){
+        if(colors.contains(color.toUpperCase())){
+            if(isLegacy){
+                return new ItemStack(Material.getMaterial("STAINED_GLASS_PANE"), 1, (short) colors.indexOf(color.toUpperCase()));
+            }else{
+                return new ItemStack(Material.getMaterial(color.toUpperCase() + "_STAINED_GLASS_PANE"));
+            }
         }
+        return null;
     }
 
-
-    public static ItemStack getRecord(String recordString){
+    @Nullable
+    public static ItemStack getRecord(@Nonnull String recordString){
         ERecords record = ERecords.findByName(recordString);
-        if(record == null) return new ItemStack(Material.APPLE);
-        return new ItemStack(record.getMaterial());
+        return record == null ? null : new ItemStack(record.getMaterial());
     }
 
 
-    public static ItemStack getItemByName(String name) {
+    @Nonnull
+    public static ItemStack getItemByName(@Nonnull String name) {
 
         if(name.contains("PLAYER_HEAD")){
             return getHead();

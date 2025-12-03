@@ -3,6 +3,7 @@ package org.shimado.basicutils.utils;
 import org.bukkit.ChatColor;
 import org.shimado.basicutils.BasicUtils;
 
+import javax.annotation.Nonnull;
 import java.awt.*;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -17,7 +18,8 @@ public class ColorUtil {
     private static final Pattern pattern3 = Pattern.compile("&[0123456789abcdefklmnn]");
 
 
-    public static String getColor(String text) {
+    @Nonnull
+    public static String getColor(@Nonnull String text) {
         Matcher matcher1 = pattern1.matcher(text);
         if(isHex){
             while (matcher1.find()){
@@ -76,27 +78,29 @@ public class ColorUtil {
     }
 
 
-    public static List<String> getColorList(List<String> text) {
-        return text.stream().map(l -> getColor(l)).collect(Collectors.toList());
+    @Nonnull
+    public static List<String> getColorList(@Nonnull List<String> text) {
+        return text.stream().map(ColorUtil::getColor).collect(Collectors.toList());
     }
 
 
-    public static boolean isAnyColor(String hex){
-        return pattern2.matcher(hex).find() || pattern3.matcher(hex).find();
+    public static boolean isAnyColor(@Nonnull String hexOrTagColor){
+        return pattern2.matcher(hexOrTagColor).find() || pattern3.matcher(hexOrTagColor).find();
     }
 
 
-    public static boolean isHexColor(String hex){
-        return pattern2.matcher(hex).find();
+    public static boolean isHexColor(@Nonnull String hexColor){
+        return pattern2.matcher(hexColor).find();
     }
 
 
-    public static Color getHexColor(String hex){
-        if(hex.equalsIgnoreCase("transparent")) return new Color(0, 0, 0, 0);
+    @Nonnull
+    public static Color getHexColor(@Nonnull String hexColor){
+        if(hexColor.equalsIgnoreCase("transparent")) return new Color(0, 0, 0, 0);
         int[] rgb = new int[]{
-                Integer.parseInt(hex.substring(1, 3), 16),
-                Integer.parseInt(hex.substring(3, 5), 16),
-                Integer.parseInt(hex.substring(5, 7), 16)
+                Integer.parseInt(hexColor.substring(1, 3), 16),
+                Integer.parseInt(hexColor.substring(3, 5), 16),
+                Integer.parseInt(hexColor.substring(5, 7), 16)
         };
         return new Color(rgb[0], rgb[1], rgb[2]);
     }

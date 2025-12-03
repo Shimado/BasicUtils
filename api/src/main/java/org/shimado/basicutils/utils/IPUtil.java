@@ -2,17 +2,20 @@ package org.shimado.basicutils.utils;
 
 import org.shimado.basicutils.BasicUtils;
 
+import javax.annotation.Nonnull;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 
 public class IPUtil {
 
+    @Nonnull
     public static String getServerPropertiesIP(){
         return BasicUtils.getPlugin().getServer().getIp();
     }
 
 
+    @Nonnull
     public static String getServerIP(){
         try {
             URL ipService = new URL("http://checkip.amazonaws.com");

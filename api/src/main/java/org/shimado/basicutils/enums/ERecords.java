@@ -5,6 +5,8 @@ import org.bukkit.Sound;
 import org.shimado.basicutils.utils.MaterialUtil;
 import org.shimado.basicutils.utils.SoundUtil;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 
 public enum ERecords {
@@ -36,12 +38,13 @@ public enum ERecords {
     private String[] sounds;
     private int duration;
 
-    ERecords(int id, String[] materials, String[] sounds, int duration) {
+    ERecords(int id, @Nonnull String[] materials, @Nonnull String[] sounds, int duration) {
         this.id = id;
         this.materials = materials;
         this.sounds = sounds;
         this.duration = duration;
     }
+
 
     public int getID(){
         return id;
@@ -51,19 +54,23 @@ public enum ERecords {
         return duration;
     }
 
+    @Nonnull
     public Material getMaterial(){
         return MaterialUtil.getMaterial(materials);
     }
 
+    @Nonnull
     public Sound getSound(){
         return SoundUtil.getSound(sounds);
     }
 
-    public static ERecords findByMaterial(Material material){
+    @Nullable
+    public static ERecords findByMaterial(@Nonnull Material material){
         return Arrays.stream(ERecords.values()).filter(e -> e.getMaterial().equals(material)).findFirst().orElse(null);
     }
 
-    public static ERecords findByName(String name){
+    @Nullable
+    public static ERecords findByName(@Nonnull String name){
         return Arrays.stream(ERecords.values()).filter(e -> e.toString().equals(name)).findFirst().orElse(null);
     }
 

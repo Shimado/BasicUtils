@@ -13,58 +13,49 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class InventoryUtil {
 
-    public static boolean addItemToInventory(Player player, ItemStack item){
-        for(ItemStack itemStack : player.getInventory().getStorageContents()){
-            if(itemStack == null || itemStack.getType().equals(Material.AIR)){
-                player.getInventory().addItem(item);
-                return true;
-            }
+    public static boolean addItemToInventory(@Nonnull Player player, @Nullable ItemStack itemToGive){
+        if(itemToGive == null || itemToGive.getAmount() <= 0) return true;
+        return addItemsToInventory(player, List.of(itemToGive));
+    }
+
+
+    public static boolean addItemsToInventory(@Nonnull Player player, @Nonnull List<ItemStack> itemsToGive){
+        if(itemsToGive.isEmpty()) return true;
+
+        Inventory oldInv = player.getInventory();
+        ItemStack[] oldStorage = oldInv.getStorageContents();
+
+        Inventory newInv = Bukkit.createInventory(null, oldInv.getSize(), UUID.randomUUID().toString());
+        ItemStack[] newStorage = new ItemStack[oldStorage.length];
+
+        for (int slot = 0; slot < oldStorage.length; slot++) {
+            newStorage[slot] = oldStorage[slot].clone();
         }
+        newInv.setStorageContents(newStorage);
+
+
+        if(newInv.addItem(itemsToGive.stream().map(ItemStack::clone).toArray(ItemStack[]::new)).isEmpty()){
+            return oldInv.addItem(itemsToGive.stream().map(ItemStack::clone).toArray(ItemStack[]::new)).isEmpty();
+        }
+
         return false;
     }
 
 
-    public static boolean addItemsToInventory(Player player, List<ItemStack> items){
-        int howMany = 0;
-        for(ItemStack itemStack : player.getInventory().getStorageContents()){
-            if(itemStack == null || itemStack.getType().equals(Material.AIR)){
-                howMany++;
-                if(howMany >= items.size()){
-                    items.forEach(it -> player.getInventory().addItem(it));
-                    return true;
-                }
-            }
-        }
-        return false;
+    public static void addItemToInventoryOrDrop(@Nonnull Player player, @Nullable ItemStack itemToGive){
+        if(itemToGive == null || itemToGive.getAmount() <= 0) return;
+        addItemsToInventoryOrDrop(player, List.of(itemToGive));
     }
 
 
-    public static void addItemToInventoryOrDrop(Player player, ItemStack item){
-        if(item == null || item.getType().equals(Material.AIR)) return;
-        for(ItemStack itemStack : player.getInventory().getStorageContents()){
-            if(itemStack == null || itemStack.getType().equals(Material.AIR)){
-                player.getInventory().addItem(item);
-                return;
-            }
-        }
-        player.getWorld().dropItemNaturally(player.getLocation().clone().add(0, 1, 0), item);
-    }
-
-
-    public static void addItemsToInventoryOrDrop(Player player, List<ItemStack> items){
-        if(items.isEmpty()) return;
-        List<ItemStack> itemsToGive = new ArrayList<>(items);
-        for(ItemStack itemStack : player.getInventory().getStorageContents()){
-            if(itemStack == null || itemStack.getType().equals(Material.AIR)){
-                player.getInventory().addItem(itemsToGive.get(0));
-                itemsToGive.remove(0);
-                if(itemsToGive.isEmpty()) return;
-            }
-        }
-        itemsToGive.forEach(it -> player.getWorld().dropItemNaturally(player.getLocation().clone().add(0, 1, 0), it));
+    public static void addItemsToInventoryOrDrop(@Nonnull Player player, @Nonnull List<ItemStack> itemsToGive){
+        if(itemsToGive.isEmpty()) return;
+        player.getInventory().addItem(itemsToGive.toArray(ItemStack[]::new)).values()
+                .forEach(item -> player.getWorld().dropItemNaturally(player.getLocation().clone().add(0, 1, 0), item));
     }
 
 
@@ -72,21 +63,22 @@ public class InventoryUtil {
         if(item == null || item.getAmount() <= 0) return false;
 
         int total = item.getAmount();
+        Material material = item.getType();
+        ItemStack chipClone = CreateItemUtil.getCloneAmount1(item);
 
         List<ItemStack> itemsToRemove = new ArrayList<>();
 
-        for(ItemStack it : inv.getContents()) {
-            if(!item.getType().equals(it.getType())) continue;
-            if(!CreateItemUtil.isSameItems(item, it, null)) continue;
+        for(ItemStack itemStack : inv.getContents()) {
+            if(!material.equals(itemStack.getType()) || !chipClone.equals(CreateItemUtil.getCloneAmount1(itemStack))) continue;
 
-            if(it.getAmount() >= total){
-                it.setAmount(it.getAmount() - total);
+            if(itemStack.getAmount() >= total){
+                itemStack.setAmount(itemStack.getAmount() - total);
                 itemsToRemove.forEach(toDel -> toDel.setAmount(0));
                 return true;
             }
-            else if(it.getAmount() < total){
-                total -= it.getAmount();
-                itemsToRemove.add(it);
+            else if(itemStack.getAmount() < total){
+                total -= itemStack.getAmount();
+                itemsToRemove.add(itemStack);
                 if(total <= 0) {
                     itemsToRemove.forEach(toDel -> toDel.setAmount(0));
                     return true;
@@ -98,43 +90,44 @@ public class InventoryUtil {
     }
 
 
-    public static void setItemToGUI(Inventory inv, int slot, Object material, String name, List<String> lore, boolean enchant, int customModelData, boolean hideName){
+    public static void setItemToGUI(@Nonnull Inventory inv, int slot, @Nonnull Object material, @Nonnull String name, @Nonnull List<String> lore, boolean enchant, int customModelData, boolean hideName){
         if(slot >= 0 && slot < inv.getSize()){
             inv.setItem(slot, CreateItemUtil.create(material, name, lore, enchant, customModelData, hideName));
         }
     }
 
-    public static void setItemToGUI(Inventory inv, List<Integer> slots, Object material, String name, List<String> lore, boolean enchant, int customModelData, boolean hideName){
+    public static void setItemToGUI(@Nonnull Inventory inv, @Nonnull List<Integer> slots, @Nonnull Object material, @Nonnull String name, @Nonnull List<String> lore, boolean enchant, int customModelData, boolean hideName){
         slots.forEach(s -> setItemToGUI(inv, s, material, name, lore, enchant, customModelData, hideName));
     }
 
 
-    public static void setItemToGUI(Inventory inv, int slot, ItemStack item){
+    public static void setItemToGUI(@Nonnull Inventory inv, int slot, @Nullable ItemStack item){
         if(slot >= 0 && slot < inv.getSize()){
             inv.setItem(slot, item);
         }
     }
 
-    public static void setItemToGUI(Inventory inv, List<Integer> slots, ItemStack item){
+    public static void setItemToGUI(@Nonnull Inventory inv, @Nonnull List<Integer> slots, @Nullable ItemStack item){
         slots.forEach(s -> setItemToGUI(inv, s, item));
     }
 
 
-    public static boolean isHaveFreeSlotsForItem(Player player, ItemStack item){
+    public static boolean isHaveFreeSlotsForItem(@Nonnull Player player, @Nonnull ItemStack item){
+        if (item == null || item.getType() == Material.AIR) return false;
+
+        int left = item.getAmount();
+        Material material = item.getType();
         ItemStack chipClone = CreateItemUtil.getCloneAmount1(item);
-        int amountLeft = item.getAmount();
 
-        for(ItemStack it : player.getInventory().getStorageContents()){
-            if(it == null){
-                return true;
+        for (ItemStack it : player.getInventory().getStorageContents()) {
+
+            if (it == null || it.getType() == Material.AIR) {
+                left -= item.getMaxStackSize();
+            } else if (material.equals(it.getType()) && chipClone.equals(CreateItemUtil.getCloneAmount1(it))) {
+                left -= (it.getMaxStackSize() - it.getAmount());
             }
 
-            ItemStack itClone = CreateItemUtil.getCloneAmount1(it);
-
-            if(chipClone.equals(itClone)){
-                amountLeft -= it.getAmount();
-                if(amountLeft <= 0) return true;
-            }
+            if (left <= 0) return true;
         }
 
         return false;
@@ -143,12 +136,12 @@ public class InventoryUtil {
 
     @FunctionalInterface
     public interface InventoryLogic{
-        void run(Inventory inv);
+        void run(@Nonnull Inventory inv);
     }
 
-    public static void createGUI(Player player, InvSessionInstance session, int sizeGUI, String titleGUI, Object emptySlotsMap, InventoryLogic logic){
+    public static void createGUI(@Nonnull Player player, @Nonnull InvSessionInstance session, int linesGUISize, @Nonnull String titleGUI, @Nonnull Object emptySlotsMap, @Nonnull InventoryLogic logic){
         session.setChangingPage(true);
-        Inventory inv = Bukkit.createInventory(null, 9 * sizeGUI, ColorUtil.getColor(titleGUI));
+        Inventory inv = Bukkit.createInventory(null, 9 * linesGUISize, ColorUtil.getColor(titleGUI));
         session.setInv(inv);
         ((Map<Integer, Object>) emptySlotsMap).forEach((slot, materials) -> {
             if(materials instanceof ItemStack){

@@ -2,6 +2,8 @@ package org.shimado.basicutils.instances;
 
 import org.bukkit.World;
 
+import javax.annotation.Nonnull;
+
 public class BParticle {
 
     private World world;
@@ -12,7 +14,7 @@ public class BParticle {
     private double pos;
     private double radius;
 
-    public BParticle(World world, double x, double y, double z, double angle, double pos, double radius) {
+    public BParticle(@Nonnull World world, double x, double y, double z, double angle, double pos, double radius) {
         this.world = world;
         this.x = x;
         this.y = y;
@@ -22,16 +24,18 @@ public class BParticle {
         this.radius = radius;
     }
 
+    @Nonnull
     public World getWorld() {
-        return this.world;
+        return world;
     }
 
-    public void setWorld(World world) {
+    public void setWorld(@Nonnull World world) {
         this.world = world;
     }
 
+
     public double getX() {
-        return this.x;
+        return x;
     }
 
     public void setX(double x) {
@@ -42,8 +46,9 @@ public class BParticle {
         this.x += x;
     }
 
+
     public double getY() {
-        return this.y;
+        return y;
     }
 
     public void setY(double y) {
@@ -54,8 +59,9 @@ public class BParticle {
         this.y += y;
     }
 
+
     public double getZ() {
-        return this.z;
+        return z;
     }
 
     public void setZ(double z) {
@@ -66,8 +72,9 @@ public class BParticle {
         this.z += z;
     }
 
+
     public double getAngle() {
-        return this.angle;
+        return angle;
     }
 
     public void setAngle(double angle) {
@@ -78,8 +85,9 @@ public class BParticle {
         this.angle += angle;
     }
 
+
     public double getPos() {
-        return this.pos;
+        return pos;
     }
 
     public void setPos(double pos) {
@@ -90,8 +98,9 @@ public class BParticle {
         this.pos += pos;
     }
 
+
     public double getRadius() {
-        return this.radius;
+        return radius;
     }
 
     public void setRadius(double radius) {

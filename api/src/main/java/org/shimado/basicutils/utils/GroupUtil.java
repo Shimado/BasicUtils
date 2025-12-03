@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.shimado.basicutils.BasicUtils;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,22 +20,23 @@ public class GroupUtil {
 
 
     private void setPerms(){
-        if(BasicUtils.getPlugin().getServer().getPluginManager().getPlugin("Vault") != null) {
-            this.vaultPerms = BasicUtils.getPlugin().getServer().getServicesManager().getRegistration(Permission.class).getProvider();
+        if(PluginsHook.isVault()) {
+            vaultPerms = BasicUtils.getPlugin().getServer().getServicesManager().getRegistration(Permission.class).getProvider();
         }
-        if(BasicUtils.getPlugin().getServer().getPluginManager().getPlugin("LuckPerms") != null){
-            this.luckPerms = new LuckPermsUtil();
+        if(PluginsHook.isLuckPerms()){
+            luckPerms = new LuckPermsUtil();
         }
     }
 
 
-    public List<String> getPlayerGroup(UUID playerUUID, boolean hasExpiry){
-        if(this.luckPerms != null){
-            return this.luckPerms.getPrimaryPlayerGroup(playerUUID, hasExpiry);
+    @Nonnull
+    public List<String> getPlayerGroup(@Nonnull UUID playerUUID, boolean hasExpiry){
+        if(luckPerms != null){
+            return luckPerms.getPrimaryPlayerGroup(playerUUID, hasExpiry);
         }
-        else if(this.vaultPerms != null){
+        else if(vaultPerms != null){
             try {
-                String group = this.vaultPerms.getPrimaryGroup(null, Bukkit.getOfflinePlayer(playerUUID));
+                String group = vaultPerms.getPrimaryGroup(null, Bukkit.getOfflinePlayer(playerUUID));
                 if(group != null) return List.of(group);
             }catch (Exception e){
                 return List.of("default");
@@ -44,38 +46,38 @@ public class GroupUtil {
     }
 
 
-    public void addGroupToPlayer(UUID playerUUID, String groupName, long expiry, String defaultContextKeys, String contextValue) {
-        if(this.luckPerms != null){
-            this.luckPerms.addGroupToPlayer(playerUUID, groupName, expiry, defaultContextKeys, contextValue);
+    public void addGroupToPlayer(@Nonnull UUID playerUUID, @Nonnull String groupName, long expiry, @Nonnull String defaultContextKeys, @Nonnull String contextValue) {
+        if(luckPerms != null){
+            luckPerms.addGroupToPlayer(playerUUID, groupName, expiry, defaultContextKeys, contextValue);
         }
-        else if(this.vaultPerms != null){
+        else if(vaultPerms != null){
             OfflinePlayer player = Bukkit.getOfflinePlayer(playerUUID);
-            String currentGroup = this.vaultPerms.getPrimaryGroup(null, player);
+            String currentGroup = vaultPerms.getPrimaryGroup(null, player);
             if (currentGroup != null && !currentGroup.equalsIgnoreCase("default")) {
-                this.vaultPerms.playerRemoveGroup(null, player, currentGroup);
+                vaultPerms.playerRemoveGroup(null, player, currentGroup);
             }
-            this.vaultPerms.playerAddGroup(null, player, groupName);
+            vaultPerms.playerAddGroup(null, player, groupName);
         }
     }
 
 
-    public void removeGroupFromPlayer(UUID playerUUID, String groupName, boolean hasExpiry) {
+    public void removeGroupFromPlayer(@Nonnull UUID playerUUID, @Nonnull String groupName, boolean hasExpiry) {
         if(groupName.equalsIgnoreCase("default")) return;
-        if(this.luckPerms != null){
-            this.luckPerms.removeGroupFromPlayer(playerUUID, groupName, hasExpiry);
+        if(luckPerms != null){
+            luckPerms.removeGroupFromPlayer(playerUUID, groupName, hasExpiry);
         }
-        else if(this.vaultPerms != null){
-            this.vaultPerms.playerRemoveGroup(null, Bukkit.getOfflinePlayer(playerUUID), groupName);
+        else if(vaultPerms != null){
+            vaultPerms.playerRemoveGroup(null, Bukkit.getOfflinePlayer(playerUUID), groupName);
         }
     }
 
 
-    public boolean hasGroup(UUID playerUUID, String groupName) {
-        if(this.luckPerms != null){
-            return this.luckPerms.hasGroup(playerUUID, groupName);
+    public boolean hasGroup(@Nonnull UUID playerUUID, @Nonnull String groupName) {
+        if(luckPerms != null){
+            return luckPerms.hasGroup(playerUUID, groupName);
         }
-        else if(this.vaultPerms != null){
-            return this.vaultPerms.playerInGroup(null, Bukkit.getOfflinePlayer(playerUUID), groupName);
+        else if(vaultPerms != null){
+            return vaultPerms.playerInGroup(null, Bukkit.getOfflinePlayer(playerUUID), groupName);
         }
         return groupName.equalsIgnoreCase("default");
     }

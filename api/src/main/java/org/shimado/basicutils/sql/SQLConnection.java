@@ -1,21 +1,23 @@
 package org.shimado.basicutils.sql;
 
-import org.bukkit.plugin.Plugin;
 import org.shimado.basicutils.BasicUtils;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 public class SQLConnection {
-
-    public SQLConnection(boolean isMySQL, boolean isSQLite, Map<String, Object> SQLData, List<String> tables){
-        reload(isMySQL, isSQLite, SQLData, tables);
-    }
 
     private Connection connection = null;
     private File sqliteFile = null;
@@ -24,7 +26,12 @@ public class SQLConnection {
     private Map<String, Object> SQLData;
     private List<String> tables;
 
-    public void reload(boolean isMySQL, boolean isSQLite, Map<String, Object> SQLData, List<String> tables){
+    public SQLConnection(boolean isMySQL, boolean isSQLite, @Nonnull Map<String, Object> SQLData, @Nonnull List<String> tables){
+        reload(isMySQL, isSQLite, SQLData, tables);
+    }
+
+
+    public void reload(boolean isMySQL, boolean isSQLite, @Nonnull Map<String, Object> SQLData, @Nonnull List<String> tables){
         this.isMySQL = isMySQL;
         this.isSQLite = isSQLite;
         this.SQLData = SQLData;
@@ -40,22 +47,22 @@ public class SQLConnection {
 
     private void dbInit(){
         //MySQL
-        if(this.isMySQL){
-            this.connection = createMySQLConnection(
-                    (String) this.SQLData.get("host"),
-                    (int) this.SQLData.get("port"),
-                    (String) this.SQLData.get("database"),
-                    (String) this.SQLData.get("user"),
-                    (String) this.SQLData.get("password")
+        if(isMySQL){
+            connection = createMySQLConnection(
+                    (String) SQLData.get("host"),
+                    (int) SQLData.get("port"),
+                    (String) SQLData.get("database"),
+                    (String) SQLData.get("user"),
+                    (String) SQLData.get("password")
             );
         }
         //SQLite
-        else if(this.isSQLite){
-            this.connection = createSQLiteConnection();
+        else if(isSQLite){
+            connection = createSQLiteConnection();
         }
 
-        if(this.connection != null){
-            this.tables.forEach(it -> initTable(it));
+        if(connection != null){
+            tables.forEach(it -> initTable(it));
         }
     }
 
@@ -64,7 +71,8 @@ public class SQLConnection {
      * ОТКРЫВАЕТ СОЕДИНЕНИЕ MYSQL
      * **/
 
-    private Connection createMySQLConnection(String host, int port, String database, String username, String password){
+    @Nonnull
+    private Connection createMySQLConnection(@Nonnull String host, int port, @Nonnull String database, @Nonnull String username, @Nonnull String password){
         Properties properties = new Properties();
         properties.setProperty("user", username);
         properties.setProperty("password", password);
@@ -83,21 +91,16 @@ public class SQLConnection {
      * ОТКРЫВАЕТ СОЕДИНЕНИЕ SQLITE
      * **/
 
+    @Nonnull
     private Connection createSQLiteConnection(){
         try {
-            if(this.connection != null && !this.connection.isClosed()){
-                return this.connection;
-            }
-
-            if(this.sqliteFile == null){
-                this.sqliteFile = new File(BasicUtils.getPlugin().getDataFolder(), "storage.db");
-                if(!this.sqliteFile.exists()){
-                    this.sqliteFile.createNewFile();
-                }
+            sqliteFile = new File(BasicUtils.getPlugin().getDataFolder(), "storage.db");
+            if(!sqliteFile.exists()){
+                sqliteFile.createNewFile();
             }
 
             Class.forName("org.sqlite.JDBC");
-            return DriverManager.getConnection("jdbc:sqlite:" + this.sqliteFile.getAbsolutePath());
+            return DriverManager.getConnection("jdbc:sqlite:" + sqliteFile.getAbsolutePath());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -105,29 +108,20 @@ public class SQLConnection {
 
 
     /**
-     * ПРОВЕРЯЕТ СОЕДИНЕНИЕ
+     * ПОЛУЧАЕТ СОЕДИНЕНИЕ
      * **/
 
-    private Connection checkConnection(){
+    @Nonnull
+    public Connection getConnection(){
         try {
-            if(this.connection == null || !this.connection.isValid(2)){
+            if(connection == null || !connection.isValid(2)){
                 dbInit();
-                return this.connection;
+                return connection;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-        return this.connection;
-    }
-
-
-
-    /**
-     * ПОЛУЧАЕТ СОЕДИНЕНИЕ
-     * **/
-
-    public Connection getConnection(){
-        return checkConnection();
+        return connection;
     }
 
 
@@ -137,8 +131,8 @@ public class SQLConnection {
 
     public void closeConnection(){
         try {
-            if(this.connection != null && !this.connection.isClosed()){
-                this.connection.close();
+            if(connection != null && !connection.isClosed()){
+                connection.close();
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -150,11 +144,11 @@ public class SQLConnection {
      * ИНИЦИИРУЕТ ТАБЛИЦУ
      * **/
 
-    private void initTable(String type){
+    private void initTable(@Nonnull String type){
         try {
             Class clazz = Class.forName(BasicUtils.getPlugin().getClass().getName());
             InputStream inputStream = null;
-            if(this.isMySQL){
+            if(isMySQL){
                 inputStream = clazz.getResourceAsStream("/sql/" + type + ".sql");
             }
             if(inputStream == null){
@@ -164,7 +158,7 @@ public class SQLConnection {
 
             for(String query : setup.split(";")){
                 if(query != null && !query.trim().isEmpty()){
-                    this.connection.prepareStatement(query.trim()).execute();
+                    connection.prepareStatement(query.trim()).execute();
                 }
             }
         } catch (Exception e) {
@@ -173,7 +167,7 @@ public class SQLConnection {
     }
 
 
-    public void closeStatement(PreparedStatement preparedStatement){
+    public void closeStatement(@Nullable PreparedStatement preparedStatement){
         try {
             if(preparedStatement != null){
                 preparedStatement.close();

@@ -2,7 +2,7 @@ package org.shimado.basicutils.nms;
 
 import org.bukkit.Bukkit;
 
-import java.lang.reflect.InvocationTargetException;
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 
 public class VersionControl {
@@ -19,8 +19,7 @@ public class VersionControl {
 
     public String getVersion(){
         if(version == null){
-            String testPaper = Bukkit.getServer().getBukkitVersion().split("-")[0];
-            switch (testPaper){
+            switch (Bukkit.getServer().getBukkitVersion().split("-")[0]){
                 case "1.12":
                 case "1.12.1":
                 case "1.12.2": version = "v1_12_R1"; break;
@@ -82,8 +81,8 @@ public class VersionControl {
             try {
                 versionControl = (IVersionControl) Class.forName("org.shimado.basicutils." + version + ".VersionInstance").getConstructor().newInstance(null);
                 invHandler = (IInvHandler) Class.forName("org.shimado.basicutils." + version + ".InvHandler").getConstructor().newInstance(null);
-            } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException |
-                     InvocationTargetException e) {
+                anvilHandler = (IAnvilHandler) Class.forName("org.shimado.basicutils." + version + ".AnvilHandler").getConstructor().newInstance(null);
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
@@ -91,24 +90,19 @@ public class VersionControl {
     }
 
 
+    @Nonnull
     public IVersionControl getVersionControl(){
         return versionControl;
     }
 
+    @Nonnull
     public IInvHandler getInvHandler(){
         return invHandler;
     }
 
+    @Nonnull
     public IAnvilHandler getAnvilHandler(){
         return anvilHandler;
-    }
-
-    public void setAnvilHandler(){
-        try {
-            anvilHandler = (IAnvilHandler) Class.forName("org.shimado.basicutils." + version + ".AnvilHandler").getConstructor().newInstance(null);
-        }catch (Exception e){
-            throw new RuntimeException(e);
-        }
     }
 
 
@@ -160,7 +154,8 @@ public class VersionControl {
         ).stream().noneMatch(it -> version.equals(it));
     }
 
-    public boolean is1_21_update(){
+
+    public boolean isGlowingAndHiddenNamesUpdated(){
         return Arrays.asList(
                 "v1_12_R1",
                 "v1_13_R1",

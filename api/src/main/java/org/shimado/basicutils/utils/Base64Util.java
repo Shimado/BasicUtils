@@ -4,6 +4,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -13,7 +15,8 @@ import java.util.Base64;
 
 public class Base64Util {
 
-    public static String encodeImage(BufferedImage image){
+    @Nullable
+    public static String encodeImage(@Nonnull BufferedImage image){
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(image, "png", baos);
@@ -25,7 +28,8 @@ public class Base64Util {
     }
 
 
-    public static BufferedImage decodeImage(Object image64){
+    @Nullable
+    public static BufferedImage decodeImage(@Nonnull Object image64){
         BufferedImage image = null;
         if(image64 != null){
             byte[] imageBytes = Base64.getDecoder().decode((String) image64);
@@ -40,7 +44,8 @@ public class Base64Util {
     }
 
 
-    public static String encodeItemStack(ItemStack itemStack){
+    @Nullable
+    public static String encodeItemStack(@Nonnull ItemStack itemStack){
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
@@ -53,7 +58,8 @@ public class Base64Util {
     }
 
 
-    public static ItemStack decodeItemStack(String itemStack64){
+    @Nullable
+    public static ItemStack decodeItemStack(@Nonnull String itemStack64){
         byte[] bytes = Base64.getDecoder().decode(itemStack64);
         ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
         try {
