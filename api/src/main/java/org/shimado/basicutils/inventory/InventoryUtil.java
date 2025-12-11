@@ -33,7 +33,9 @@ public class InventoryUtil {
         ItemStack[] newStorage = new ItemStack[oldStorage.length];
 
         for (int slot = 0; slot < oldStorage.length; slot++) {
-            newStorage[slot] = oldStorage[slot].clone();
+            if(oldStorage[slot] != null){
+                newStorage[slot] = oldStorage[slot].clone();
+            }
         }
         newInv.setStorageContents(newStorage);
 
