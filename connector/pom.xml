@@ -31,6 +31,7 @@
                                     <include>org.shimado.basicutils:BasicUtils</include>
                                     <include>org.shimado.basicutils:api</include>
                                     <include>org.shimado.basicutils:connector</include>
+                                    <include>org.shimado.basicutils:v1_21_R7</include>
                                     <include>org.shimado.basicutils:v1_21_R6</include>
                                     <include>org.shimado.basicutils:v1_21_R5</include>
                                     <include>org.shimado.basicutils:v1_21_R4</include>
@@ -79,6 +80,11 @@
         <dependency>
             <groupId>org.shimado.basicutils</groupId>
             <artifactId>api</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.shimado.basicutils</groupId>
+            <artifactId>v1_21_R7</artifactId>
             <version>${revision}</version>
         </dependency>
         <dependency>

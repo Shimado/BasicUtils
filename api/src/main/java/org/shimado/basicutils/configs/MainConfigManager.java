@@ -43,13 +43,13 @@ public class MainConfigManager {
 
 
     @FunctionalInterface
-    private interface ConfigRunnable {
-        int run(@Nonnull YamlConfiguration config, @Nonnull YamlConfiguration messages);
+    public interface ConfigRunnable {
+        void run(@Nonnull YamlConfiguration config, @Nonnull YamlConfiguration messages);
     }
 
     @FunctionalInterface
-    private interface ConfigUpdateRunnable {
-        int run(@Nonnull YamlConfiguration config, @Nonnull YamlConfiguration messages, String oldVersion, String newVersion);
+    public interface ConfigUpdateRunnable {
+        void run(@Nonnull YamlConfiguration config, @Nonnull YamlConfiguration messages, String oldVersion, String newVersion);
     }
 
 

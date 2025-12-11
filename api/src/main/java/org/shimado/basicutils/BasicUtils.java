@@ -1,6 +1,8 @@
 package org.shimado.basicutils;
 
 import org.bukkit.plugin.Plugin;
+import org.shimado.basicutils.cycles.SchedulerAdapter;
+import org.shimado.basicutils.cycles.TaskUtil;
 import org.shimado.basicutils.nms.VersionControl;
 
 public class BasicUtils {
@@ -10,8 +12,11 @@ public class BasicUtils {
 
     public BasicUtils(Plugin plugin){
         this.plugin = plugin;
-        this.versionControl = new VersionControl();
+        versionControl = new VersionControl();
+        new SchedulerAdapter(plugin);
+        new TaskUtil(plugin);
     }
+
 
     public static Plugin getPlugin(){
         return plugin;

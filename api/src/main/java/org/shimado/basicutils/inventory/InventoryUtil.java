@@ -29,7 +29,7 @@ public class InventoryUtil {
         Inventory oldInv = player.getInventory();
         ItemStack[] oldStorage = oldInv.getStorageContents();
 
-        Inventory newInv = Bukkit.createInventory(null, oldInv.getSize(), UUID.randomUUID().toString());
+        Inventory newInv = Bukkit.createInventory(null, 36, UUID.randomUUID().toString());
         ItemStack[] newStorage = new ItemStack[oldStorage.length];
 
         for (int slot = 0; slot < oldStorage.length; slot++) {

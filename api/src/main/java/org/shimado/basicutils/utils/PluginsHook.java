@@ -13,49 +13,63 @@ public class PluginsHook {
         }
     }
 
+    private static boolean isPlugin(String pluginName){
+        return Bukkit.getServer().getPluginManager().getPlugin(pluginName) != null;
+    }
+
 
     public static boolean isBoombox(){
-        return Bukkit.getServer().getPluginManager().getPlugin("Boombox") != null;
+        return isPlugin("Boombox");
     }
 
 
     public static boolean isPlaceholderAPI(){
-        return Bukkit.getServer().getPluginManager().getPlugin("PlaceholderAPI") != null;
+        return isPlugin("PlaceholderAPI");
     }
 
 
     public static boolean isItemsAdder(){
-        return Bukkit.getServer().getPluginManager().getPlugin("ItemsAdder") != null;
+        return isPlugin("ItemsAdder");
     }
 
 
     public static boolean isOraxen(){
-        return Bukkit.getServer().getPluginManager().getPlugin("Oraxen") != null;
+        return isPlugin("Oraxen");
     }
 
 
     public static boolean isDiscordSRV(){
-        return Bukkit.getServer().getPluginManager().getPlugin("DiscordSRV") != null;
+        return isPlugin("DiscordSRV");
     }
 
 
     public static boolean isVault(){
-        return Bukkit.getServer().getPluginManager().getPlugin("Vault") != null;
+        return isPlugin("Vault");
     }
 
 
     public static boolean isPlayerPoints(){
-        return Bukkit.getServer().getPluginManager().getPlugin("PlayerPoints") != null;
+        return isPlugin("PlayerPoints");
     }
 
 
     public static boolean isVotingPlugin(){
-        return Bukkit.getServer().getPluginManager().getPlugin("VotingPlugin") != null;
+        return isPlugin("VotingPlugin");
     }
 
 
     public static boolean isLuckPerms(){
-        return Bukkit.getServer().getPluginManager().getPlugin("LuckPerms") != null;
+        return isPlugin("LuckPerms");
+    }
+
+
+    public static boolean isVegas(){
+        return isPlugin("Vegas");
+    }
+
+
+    public static boolean isLands(){
+        return isPlugin("Lands");
     }
 
 }
