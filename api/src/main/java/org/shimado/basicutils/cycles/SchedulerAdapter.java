@@ -93,6 +93,16 @@ public class SchedulerAdapter {
     }
 
 
+    public static void callSyncMethod(@NotNull String command){
+        if(command == null) return;
+        if(isFolia){
+            plugin.getServer().getGlobalRegionScheduler().execute(plugin, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command));
+        }else{
+            Bukkit.getScheduler().callSyncMethod(plugin, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command));
+        }
+    }
+
+
     public static void runTaskAsynchronously(@NotNull Runnable task){
         if(isFolia){
             plugin.getServer().getAsyncScheduler().runNow(plugin, t -> task.run());
