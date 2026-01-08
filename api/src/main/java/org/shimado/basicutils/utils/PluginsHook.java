@@ -72,4 +72,9 @@ public class PluginsHook {
         return isPlugin("Lands");
     }
 
+
+    public static boolean isCoinsEngine(){
+        return isPlugin("CoinsEngine");
+    }
+
 }

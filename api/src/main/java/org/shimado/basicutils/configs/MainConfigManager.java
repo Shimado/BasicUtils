@@ -115,6 +115,9 @@ public class MainConfigManager {
         try {
             config.save(configFile);
             messages.save(messageFile);
+
+            config = YamlConfiguration.loadConfiguration(configFile);
+            messages = YamlConfiguration.loadConfiguration(messageFile);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
