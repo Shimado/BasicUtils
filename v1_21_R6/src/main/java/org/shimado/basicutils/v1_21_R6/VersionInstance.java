@@ -41,6 +41,7 @@ public class VersionInstance implements IVersionControl {
     @Override
     public ItemStack createItemWithTag(ItemStack item, String tag, String value) {
         ItemMeta meta = item.getItemMeta();
+        if(meta == null) return item;
         PersistentDataContainer container = meta.getPersistentDataContainer();
         container.set(new NamespacedKey(BasicUtils.getPlugin(), tag), PersistentDataType.STRING, value);
         item.setItemMeta(meta);
@@ -51,6 +52,7 @@ public class VersionInstance implements IVersionControl {
     @Override
     public ItemStack createItemWithTags(ItemStack item, Map<String, String> map) {
         ItemMeta meta = item.getItemMeta();
+        if(meta == null) return item;
         PersistentDataContainer container = meta.getPersistentDataContainer();
         for(Map.Entry<String, String> a : map.entrySet()){
             container.set(new NamespacedKey(BasicUtils.getPlugin(), a.getKey()), PersistentDataType.STRING, a.getValue());
@@ -63,8 +65,9 @@ public class VersionInstance implements IVersionControl {
     @Override
     public String getTag(ItemStack item, String tag){
         if(item == null || item.getType().equals(Material.AIR)) return "";
-        NamespacedKey key = new NamespacedKey(BasicUtils.getPlugin(), tag.toLowerCase().replace(" ", ""));
         ItemMeta meta = item.getItemMeta();
+        if(meta == null) return "";
+        NamespacedKey key = new NamespacedKey(BasicUtils.getPlugin(), tag.toLowerCase().replace(" ", ""));
         return meta.getPersistentDataContainer().getOrDefault(key, PersistentDataType.STRING, "");
     }
 
@@ -94,13 +97,22 @@ public class VersionInstance implements IVersionControl {
     }
 
     @Override
-    public void createFirework(Player player, Location loc, ItemStack fireworkItem) {
+    public void createFirework(List<Player> players, Location loc, ItemStack fireworkItem) {
         EntityFireworks firework = new EntityFireworks(NMSUtil.getWorld(loc), loc.getX(), loc.getY(), loc.getZ(), CraftItemStack.asNMSCopy(fireworkItem));
-        NMSUtil.sendPacket(player, new PacketPlayOutSpawnEntity(NMSUtil.getEntityID(firework), firework.cT(), loc.getX(), loc.getY(), loc.getZ(), firework.dX(), firework.dZ(), firework.ax(), 1, firework.dI(), firework.cN() * 1.0));
+        Packet spawnPacket = new PacketPlayOutSpawnEntity(NMSUtil.getEntityID(firework), firework.cT(), loc.getX(), loc.getY(), loc.getZ(), firework.dX(), firework.dZ(), firework.ax(), 1, firework.dI(), firework.cN() * 1.0);
+        players.forEach(p -> NMSUtil.sendPacket(p, spawnPacket));
+
         firework.i = 0;
-        NMSUtil.sendPacket(player, new PacketPlayOutEntityMetadata(NMSUtil.getEntityID(firework), firework.aC().b()));
-        NMSUtil.sendPacket(player, new PacketPlayOutEntityStatus(firework, (byte) 17));
-        NMSUtil.sendPacket(player, new PacketPlayOutEntityDestroy(NMSUtil.getEntityID(firework)));
+
+        Packet metaPacket = new PacketPlayOutEntityMetadata(NMSUtil.getEntityID(firework), firework.aC().b());
+        Packet statusPacket = new PacketPlayOutEntityStatus(firework, (byte) 17);
+        Packet destroyPacket = new PacketPlayOutEntityDestroy(NMSUtil.getEntityID(firework));
+
+        players.forEach(p -> {
+            NMSUtil.sendPacket(p, metaPacket);
+            NMSUtil.sendPacket(p, statusPacket);
+            NMSUtil.sendPacket(p, destroyPacket);
+        });
     }
 
 

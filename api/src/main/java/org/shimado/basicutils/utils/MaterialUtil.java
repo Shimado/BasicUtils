@@ -2,11 +2,11 @@ package org.shimado.basicutils.utils;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.shimado.basicutils.BasicUtils;
 import org.shimado.basicutils.enums.ERecords;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -15,8 +15,8 @@ public class MaterialUtil {
     private static final boolean isLegacy = BasicUtils.getVersionControl().isLegacy();
     private static final List<String> colors = Arrays.asList("WHITE", "ORANGE", "MAGENTA", "LIGHT_BLUE", "YELLOW", "LIME", "PINK", "GRAY", "LIGHT_GRAY", "CYAN", "PURPLE", "BLUE", "BROWN", "GREEN", "RED", "BLACK");
 
-    @Nonnull
-    public static Material getMaterial(@Nonnull String[] materials) {
+    @NotNull
+    public static Material getMaterial(@NotNull String[] materials) {
         for (String material : materials) {
             if (Material.getMaterial(material) != null) {
                 return Material.getMaterial(material);
@@ -26,34 +26,33 @@ public class MaterialUtil {
     }
 
 
-    @Nonnull
+    public static boolean isPlayerHead(@NotNull ItemStack item){
+        if(isLegacy) return item.getType().toString().equals("SKULL_ITEM") && item.getData().getData() == 3;
+        return item.getType().toString().equals("PLAYER_HEAD");
+    }
+
+
+    @NotNull
     public static ItemStack getHead(){
         if(isLegacy) return new ItemStack(Material.getMaterial("SKULL_ITEM"), 1, (short) 3);
         return new ItemStack(getMaterial((new String[]{"PLAYER_HEAD"})));
     }
 
-    @Nonnull
+
+    @NotNull
     public static ItemStack getSunflower(){
         return new ItemStack(getMaterial((new String[]{"SUNFLOWER", "DOUBLE_PLANT"})));
     }
 
-    @Nonnull
+
+    @NotNull
     public static ItemStack getFireWorks(){
         return new ItemStack(getMaterial((new String[]{"FIREWORKS", "FIREWORK", "FIREWORK_ROCKET"})));
     }
 
-    @Nonnull
-    public static ItemStack getGoldPlate(){
-        return new ItemStack(getMaterial((new String[]{"GOLD_PLATE", "LIGHT_WEIGHTED_PRESSURE_PLATE"})));
-    }
-
-    @Nonnull
-    public static ItemStack getIronPlate(){
-        return new ItemStack(getMaterial((new String[]{"IRON_PLATE", "HEAVY_WEIGHTED_PRESSURE_PLATE"})));
-    }
 
     @Nullable
-    public static ItemStack getConcrete(@Nonnull String color){
+    public static ItemStack getConcrete(@NotNull String color){
         if(colors.contains(color.toUpperCase())){
             if(isLegacy){
                 return new ItemStack(Material.getMaterial("CONCRETE"), 1, (short) colors.indexOf(color.toUpperCase()));
@@ -64,8 +63,9 @@ public class MaterialUtil {
         return null;
     }
 
+
     @Nullable
-    public static ItemStack getWool(@Nonnull String color){
+    public static ItemStack getWool(@NotNull String color){
         if(colors.contains(color.toUpperCase())){
             if(isLegacy){
                 return new ItemStack(Material.getMaterial("WOOL"), 1, (short) colors.indexOf(color.toUpperCase()));
@@ -76,8 +76,9 @@ public class MaterialUtil {
         return null;
     }
 
+
     @Nullable
-    public static ItemStack getDye(@Nonnull String color){
+    public static ItemStack getDye(@NotNull String color){
         if(colors.contains(color.toUpperCase())){
             if(isLegacy){
                 return new ItemStack(Material.getMaterial("INK_SACK"), 1, (short) colors.indexOf(color.toUpperCase()));
@@ -88,8 +89,9 @@ public class MaterialUtil {
         return null;
     }
 
+
     @Nullable
-    public static ItemStack getCarpet(@Nonnull String color){
+    public static ItemStack getCarpet(@NotNull String color){
         if(colors.contains(color.toUpperCase())){
             if(isLegacy){
                 return new ItemStack(Material.getMaterial("CARPET"), 1, (short) colors.indexOf(color.toUpperCase()));
@@ -100,8 +102,9 @@ public class MaterialUtil {
         return null;
     }
 
+
     @Nullable
-    public static ItemStack getGlassPane(@Nonnull String color){
+    public static ItemStack getGlassPane(@NotNull String color){
         if(colors.contains(color.toUpperCase())){
             if(isLegacy){
                 return new ItemStack(Material.getMaterial("STAINED_GLASS_PANE"), 1, (short) colors.indexOf(color.toUpperCase()));
@@ -112,15 +115,25 @@ public class MaterialUtil {
         return null;
     }
 
+
     @Nullable
-    public static ItemStack getRecord(@Nonnull String recordString){
+    public static ItemStack getDoor(@NotNull String name){
+        if(isLegacy){
+            return new ItemStack(getMaterial((new String[]{"IRON_DOOR", "TNT"})));
+        }
+        return new ItemStack(getMaterial((new String[]{name, "WOODEN_DOOR", "TNT"})));
+    }
+
+
+    @Nullable
+    public static ItemStack getRecord(@NotNull String recordString){
         ERecords record = ERecords.findByName(recordString);
         return record == null ? null : new ItemStack(record.getMaterial());
     }
 
 
-    @Nonnull
-    public static ItemStack getItemByName(@Nonnull String name) {
+    @NotNull
+    public static ItemStack getItemByName(@NotNull String name) {
 
         if(name.contains("PLAYER_HEAD")){
             return getHead();
@@ -150,20 +163,56 @@ public class MaterialUtil {
             return getSunflower();
         }
 
+        if(name.contains("CLOCK")){
+            return new ItemStack(getMaterial((new String[]{"CLOCK", "WATCH"})));
+        }
+
+        if(name.contains("IRON_BARS")){
+            return new ItemStack(getMaterial((new String[]{"IRON_BARS", "IRON_FENCE"})));
+        }
+
+        if(isLegacy && (name.endsWith("_HEAD") || name.endsWith("_SKULL"))){
+            short type = -1;
+            switch (name){
+                case "ZOMBIE_HEAD": type = 2; break;
+                case "SKELETON_HEAD": type = 0; break;
+                case "WITHER_SKELETON_SKULL": type = 1; break;
+                case "CREEPER_HEAD": type = 4; break;
+                case "DRAGON_HEAD": type = 5; break;
+            }
+            if(type != -1){
+                return new ItemStack(Material.getMaterial("SKULL_ITEM"), 1, type);
+            }
+        }
+
         if(name.contains("_CARPET")){
             return getCarpet(name.replace("_CARPET", ""));
         }
 
         if(name.equals("LIGHT_WEIGHTED_PRESSURE_PLATE")){
-            return getGoldPlate();
+            return new ItemStack(getMaterial((new String[]{"GOLD_PLATE", "LIGHT_WEIGHTED_PRESSURE_PLATE"})));
         }
 
         if(name.equals("HEAVY_WEIGHTED_PRESSURE_PLATE")){
-            return getIronPlate();
+            return new ItemStack(getMaterial((new String[]{"IRON_PLATE", "HEAVY_WEIGHTED_PRESSURE_PLATE"})));
+        }
+
+        if(name.endsWith("_HORSE_ARMOR")){
+            String type = name.replace("_HORSE_ARMOR", "");
+            switch (type){
+                case "IRON": return new ItemStack(getMaterial((new String[]{"IRON_HORSE_ARMOR", "IRON_BARDING"})));
+                case "GOLDEN": return new ItemStack(getMaterial((new String[]{"GOLDEN_HORSE_ARMOR", "GOLD_BARDING"})));
+                case "DIAMOND": return new ItemStack(getMaterial((new String[]{"DIAMOND_HORSE_ARMOR", "DIAMOND_BARDING"})));
+                default: return new ItemStack(getMaterial((new String[]{name, "IRON_BARDING"})));
+            }
         }
 
         if(name.contains("MUSIC_DISC_")){
             return getRecord(name);
+        }
+
+        if(name.contains("OAK_DOOR")){
+            return getDoor(name);
         }
 
         try {

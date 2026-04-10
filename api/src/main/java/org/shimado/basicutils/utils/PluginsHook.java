@@ -1,6 +1,9 @@
 package org.shimado.basicutils.utils;
 
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
 
 public class PluginsHook {
 
@@ -13,7 +16,7 @@ public class PluginsHook {
         }
     }
 
-    private static boolean isPlugin(String pluginName){
+    private static boolean isPlugin(@NotNull String pluginName){
         return Bukkit.getServer().getPluginManager().getPlugin(pluginName) != null;
     }
 
@@ -38,8 +41,18 @@ public class PluginsHook {
     }
 
 
+    public static boolean isNexo(){
+        return isPlugin("Nexo");
+    }
+
+
     public static boolean isDiscordSRV(){
         return isPlugin("DiscordSRV");
+    }
+
+
+    public static boolean isDiscordSynthesis(){
+        return isPlugin("DiscordSynthesis");
     }
 
 
@@ -73,8 +86,23 @@ public class PluginsHook {
     }
 
 
+    public static boolean isWorldGuard(){
+        return isPlugin("WorldGuard");
+    }
+
+
     public static boolean isCoinsEngine(){
-        return isPlugin("CoinsEngine");
+        return isPlugin("CoinsEngine") || isPlugin("ExcellentEconomy");
+    }
+
+
+    public static boolean isExcellentEconomy(){
+        return isCoinsEngine();
+    }
+
+
+    public static boolean isArcLight(){
+        return new File(Bukkit.getServer().getWorldContainer().getParentFile() + File.separator + "mohist-config", "mohist.yml").exists();
     }
 
 }

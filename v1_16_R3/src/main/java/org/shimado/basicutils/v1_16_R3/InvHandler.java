@@ -3,6 +3,7 @@ package org.shimado.basicutils.v1_16_R3;
 import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemStack;
 import org.shimado.basicutils.nms.IInvHandler;
 import org.shimado.basicutils.utils.ColorUtil;
 
@@ -29,6 +30,21 @@ public class InvHandler implements IInvHandler {
 
     public Inventory getTopInventory(InventoryInteractEvent e){
         return e.getView().getTopInventory();
+    }
+
+
+    public Inventory getBottomInventory(InventoryInteractEvent e){
+        return e.getView().getBottomInventory();
+    }
+
+
+    public ItemStack getItem(InventoryInteractEvent e, int slot){
+        return e.getView().getItem(slot);
+    }
+
+
+    public void setItem(InventoryInteractEvent e, int slot, ItemStack item){
+        e.getView().setItem(slot, item);
     }
 
 

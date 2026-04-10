@@ -4,15 +4,15 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class BookUtil {
 
-    public static void openBook(@Nonnull Player player, @Nonnull List<List<String>> bookText){
+    public static void openBook(@NotNull Player player, @NotNull List<List<String>> bookText){
         ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
         BookMeta meta = (BookMeta) book.getItemMeta();
         meta.setTitle(UUID.randomUUID().toString().substring(0, 6));
@@ -23,7 +23,7 @@ public class BookUtil {
     }
 
 
-    private static void colorBookText(@Nonnull BookMeta meta, @Nonnull List<List<String>> text){
+    private static void colorBookText(@NotNull BookMeta meta, @NotNull List<List<String>> text){
         List<String> result = new ArrayList<>();
         for (int k = 0; k < text.size(); k++) {
             String page = "";

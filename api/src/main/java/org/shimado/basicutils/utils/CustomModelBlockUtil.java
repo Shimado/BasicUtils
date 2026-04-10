@@ -14,7 +14,9 @@ import java.util.List;
 
 public class CustomModelBlockUtil {
 
-    public static void createTexture(Player player, Location locOrig, ItemStack headItem, int customModelData, boolean toCenterModel){
+    //TODO УДАЛИТЬ ЦЕЛЫЙ КЛАСС ЦЕЛИКОМ
+
+    public static void _createTexture(Player player, Location locOrig, ItemStack headItem, int customModelData, boolean toCenterModel){
         if(customModelData <= 0) return;
         Location loc = locOrig.clone();
         if(toCenterModel){
@@ -33,7 +35,7 @@ public class CustomModelBlockUtil {
     }
 
 
-    public static void removeTexture(Location loc){
+    public static void _removeTexture(Location loc){
         if(loc.getWorld() == null) return;
         loc.getWorld().getNearbyEntities(loc.clone().add(0.5, 0.5, 0.5), 0.2, 0.5, 0.2).forEach(it -> {
             if(it instanceof ArmorStand){
@@ -47,7 +49,7 @@ public class CustomModelBlockUtil {
     }
 
 
-    public static void setTexture(List<Location> locs, ItemStack headItem, int customModelData, boolean toCenterModel){
+    public static void _setTexture(List<Location> locs, ItemStack headItem, int customModelData, boolean toCenterModel){
         Bukkit.getScheduler().scheduleSyncDelayedTask(BasicUtils.getPlugin(), () -> {
 
             for(Location l : locs){

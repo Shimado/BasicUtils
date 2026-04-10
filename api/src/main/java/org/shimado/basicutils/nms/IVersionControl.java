@@ -7,55 +7,55 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapCanvas;
+import org.jetbrains.annotations.NotNull;
 import org.shimado.basicutils.instances.Pair;
 
-import javax.annotation.Nonnull;
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
 
 public interface IVersionControl {
 
-    @Nonnull
-    ItemStack createItemWithTag(@Nonnull ItemStack item, @Nonnull String tag, @Nonnull String value);
+    @NotNull
+    ItemStack createItemWithTag(@NotNull ItemStack item, @NotNull String tag, @NotNull String value);
 
-    @Nonnull
-    ItemStack createItemWithTags(@Nonnull ItemStack item, @Nonnull Map<String, String> map);
+    @NotNull
+    ItemStack createItemWithTags(@NotNull ItemStack item, @NotNull Map<String, String> map);
 
-    @Nonnull
-    String getTag(@Nonnull ItemStack item, @Nonnull String tag);
+    @NotNull
+    String getTag(@NotNull ItemStack item, @NotNull String tag);
 
-    void moveHeadToBottom(@Nonnull Player player);
+    void moveHeadToBottom(@NotNull Player player);
 
-    void setPixelColor(@Nonnull MapCanvas mapCanvas, int x, int y, @Nonnull Color color);
+    void setPixelColor(@NotNull MapCanvas mapCanvas, int x, int y, @NotNull Color color);
 
-    @Nonnull
-    Color getBasePixelColor(@Nonnull MapCanvas mapCanvas, int x, int y);
+    @NotNull
+    Color getBasePixelColor(@NotNull MapCanvas mapCanvas, int x, int y);
 
-    void createFirework(@Nonnull Player player, @Nonnull Location loc, @Nonnull ItemStack firework);
+    void createFirework(@NotNull List<Player> players, @NotNull Location loc, @NotNull ItemStack firework);
 
-    @Nonnull
-    GameProfile getGameProfile(@Nonnull Player player);
+    @NotNull
+    GameProfile getGameProfile(@NotNull Player player);
 
-    @Nonnull
-    BlockFace getFacing(@Nonnull Player player);
+    @NotNull
+    BlockFace getFacing(@NotNull Player player);
 
-    void spawnParticleNote(@Nonnull World world, double x, double y, double z, float color);
+    void spawnParticleNote(@NotNull World world, double x, double y, double z, float color);
 
-    void spawnParticleDust(@Nonnull World world, double x, double y, double z, float r, float g, float b);
+    void spawnParticleDust(@NotNull World world, double x, double y, double z, float r, float g, float b);
 
-    @Nonnull
-    Pair spawnArmorStandByLocation(@Nonnull Location loc, @Nonnull org.bukkit.inventory.ItemStack itemHead, boolean isSmall, float angleX, float angleY, float angleZ);
+    @NotNull
+    Pair spawnArmorStandByLocation(@NotNull Location loc, @NotNull org.bukkit.inventory.ItemStack itemHead, boolean isSmall, float angleX, float angleY, float angleZ);
 
-    void moveStand(@Nonnull Object entity, @Nonnull Location newLoc, @Nonnull Location oldLoc);
+    void moveStand(@NotNull Object entity, @NotNull Location newLoc, @NotNull Location oldLoc);
 
-    void removeEntity(@Nonnull Object stand);
+    void removeEntity(@NotNull Object stand);
 
-    void rotateStand(@Nonnull Object stand, int angle);
+    void rotateStand(@NotNull Object stand, int angle);
 
-    void spawnArmorStandToPlayer(@Nonnull Player player, @Nonnull Object stand, @Nonnull ItemStack item, @Nonnull Object packet);
+    void spawnArmorStandToPlayer(@NotNull Player player, @NotNull Object stand, @NotNull ItemStack item, @NotNull Object packet);
 
-    @Nonnull
-    Object createItem(@Nonnull List<Player> players, @Nonnull Location loc, @Nonnull ItemStack itemToDrop, double vectorX, double vectorY, double vectorZ);
+    @NotNull
+    Object createItem(@NotNull List<Player> players, @NotNull Location loc, @NotNull ItemStack itemToDrop, double vectorX, double vectorY, double vectorZ);
 
 }

@@ -1,6 +1,7 @@
 package org.shimado.basicutils.utils;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
+
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
@@ -28,7 +29,7 @@ public class NumberUtil {
     }
 
 
-    public static boolean isInt(@Nonnull String number){
+    public static boolean isInt(@NotNull String number){
         try {
             Integer.valueOf(number);
             return true;
@@ -38,7 +39,7 @@ public class NumberUtil {
     }
 
 
-    public static boolean isDouble(@Nonnull String number){
+    public static boolean isDouble(@NotNull String number){
         try {
             Double.valueOf(number);
             return true;
@@ -48,7 +49,7 @@ public class NumberUtil {
     }
 
 
-    @Nonnull
+    @NotNull
     public static String getIntNumber(double number, boolean isFormatting) {
         if(number == 0) return "0";
         DecimalFormat df = new DecimalFormat(isFormatting ? "#,###.##" : "#.##", new DecimalFormatSymbols(Locale.US));
@@ -69,7 +70,7 @@ public class NumberUtil {
         return number >= min && number <= max;
     }
 
-    public static boolean inRangeInt(@Nonnull String numberString, int min, int max){
+    public static boolean inRangeInt(@NotNull String numberString, int min, int max){
         if(!isInt(numberString)) return false;
         return inRangeInt(Integer.parseInt(numberString), min, max);
     }
@@ -79,7 +80,7 @@ public class NumberUtil {
         return number >= min && number <= max;
     }
 
-    public static boolean inRangeDouble(@Nonnull String numberString, double min, double max){
+    public static boolean inRangeDouble(@NotNull String numberString, double min, double max){
         if(!isDouble(numberString)) return false;
         return inRangeDouble(Double.parseDouble(numberString), min, max);
     }
@@ -94,8 +95,8 @@ public class NumberUtil {
     }
 
 
-    @Nonnull
-    public static String getDateTimeFormat(@Nonnull Date date, @Nonnull String dateFormat){
+    @NotNull
+    public static String getDateTimeFormat(@NotNull Date date, @NotNull String dateFormat){
         return new SimpleDateFormat(dateFormat).format(date);
     }
 

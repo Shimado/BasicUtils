@@ -1,19 +1,18 @@
 package org.shimado.basicutils.cycles;
 
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
-public class CycleTask {
+public class CycleTask{
 
     private int bukkitTask = -1;
-    private ScheduledTask foliaTask;
+    private Object foliaTask;
 
     public CycleTask(int bukkitTask){
         this.bukkitTask = bukkitTask;
     }
 
-    public CycleTask(@NotNull ScheduledTask foliaTask){
+    public CycleTask(@NotNull Object foliaTask){
         this.foliaTask = foliaTask;
     }
 
@@ -23,7 +22,9 @@ public class CycleTask {
             Bukkit.getScheduler().cancelTask(bukkitTask);
         }
         else if(foliaTask != null){
-            foliaTask.cancel();
+            try {
+                Class.forName("io.papermc.paper.threadedregions.scheduler.ScheduledTask").getDeclaredMethod("cancel").invoke(foliaTask);
+            }catch (Exception ex){}
         }
     }
 

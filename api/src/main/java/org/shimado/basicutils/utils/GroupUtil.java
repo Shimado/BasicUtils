@@ -3,9 +3,9 @@ package org.shimado.basicutils.utils;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.jetbrains.annotations.NotNull;
 import org.shimado.basicutils.BasicUtils;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,8 +29,8 @@ public class GroupUtil {
     }
 
 
-    @Nonnull
-    public List<String> getPlayerGroup(@Nonnull UUID playerUUID, boolean hasExpiry){
+    @NotNull
+    public List<String> getPlayerGroup(@NotNull UUID playerUUID, boolean hasExpiry){
         if(luckPerms != null){
             return luckPerms.getPrimaryPlayerGroup(playerUUID, hasExpiry);
         }
@@ -46,7 +46,7 @@ public class GroupUtil {
     }
 
 
-    public void addGroupToPlayer(@Nonnull UUID playerUUID, @Nonnull String groupName, long expiry, @Nonnull String defaultContextKeys, @Nonnull String contextValue) {
+    public void addGroupToPlayer(@NotNull UUID playerUUID, @NotNull String groupName, long expiry, @NotNull String defaultContextKeys, @NotNull String contextValue) {
         if(luckPerms != null){
             luckPerms.addGroupToPlayer(playerUUID, groupName, expiry, defaultContextKeys, contextValue);
         }
@@ -61,7 +61,7 @@ public class GroupUtil {
     }
 
 
-    public void removeGroupFromPlayer(@Nonnull UUID playerUUID, @Nonnull String groupName, boolean hasExpiry) {
+    public void removeGroupFromPlayer(@NotNull UUID playerUUID, @NotNull String groupName, boolean hasExpiry) {
         if(groupName.equalsIgnoreCase("default")) return;
         if(luckPerms != null){
             luckPerms.removeGroupFromPlayer(playerUUID, groupName, hasExpiry);
@@ -72,7 +72,7 @@ public class GroupUtil {
     }
 
 
-    public boolean hasGroup(@Nonnull UUID playerUUID, @Nonnull String groupName) {
+    public boolean hasGroup(@NotNull UUID playerUUID, @NotNull String groupName) {
         if(luckPerms != null){
             return luckPerms.hasGroup(playerUUID, groupName);
         }

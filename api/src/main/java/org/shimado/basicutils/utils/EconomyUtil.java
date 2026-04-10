@@ -12,20 +12,24 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.shimado.basicutils.BasicUtils;
-import su.nightexpress.coinsengine.api.CoinsEngineAPI;
-import su.nightexpress.coinsengine.api.currency.Currency;
 
+import java.lang.reflect.Method;
 import java.util.UUID;
 
 public class EconomyUtil {
 
     private Economy vaultAPI;
-    private Currency coinsEngineCurrency;
     private PlayerPointsAPI playerPointsAPI;
     private UserManager votingPluginAPI;
 
-    public EconomyUtil(boolean useVault, @Nullable String coinsEngineCurrencyName, boolean usePlayerPoints, boolean useVotingPlugin) {
-        reload(useVault, coinsEngineCurrencyName, usePlayerPoints, useVotingPlugin);
+    private Object excellentCurrencyCurrency;
+    private Method excellentCurrencyGetBalance;
+    private Method excellentCurrencySetBalance;
+    private Method excellentCurrencyAddBalance;
+    private Method excellentCurrencyRemoveBalance;
+
+    public EconomyUtil(boolean useVault, @Nullable String excellentEconomyCurrencyName, boolean usePlayerPoints, boolean useVotingPlugin) {
+        reload(useVault, excellentEconomyCurrencyName, usePlayerPoints, useVotingPlugin);
     }
 
 
@@ -34,8 +38,8 @@ public class EconomyUtil {
     }
 
 
-    public boolean isCoinsEngineEnabled(){
-        return coinsEngineCurrency != null;
+    public boolean isExcellentCurrencyEnabled(){
+        return excellentCurrencyCurrency != null;
     }
 
 
@@ -49,14 +53,14 @@ public class EconomyUtil {
     }
 
 
-    private void initEconomy(boolean useVault, @Nullable String coinsEngineCurrencyName, boolean usePlayerPoints, boolean useVotingPlugin){
+    private void initEconomy(boolean useVault, @Nullable String excellentEconomyCurrencyName, boolean usePlayerPoints, boolean useVotingPlugin){
         vaultAPI = null;
-        coinsEngineCurrency = null;
         playerPointsAPI = null;
         votingPluginAPI = null;
+        excellentCurrencyCurrency = null;
 
         if(useVault){
-            initVault(coinsEngineCurrencyName);
+            initVault(excellentEconomyCurrencyName);
         }
         if(usePlayerPoints){
             initPlayerPoints();
@@ -67,15 +71,37 @@ public class EconomyUtil {
     }
 
 
-    private void initVault(@Nullable String coinsEngineCurrencyName) {
+    private void initVault(@Nullable String excellentEconomyCurrencyName) {
         if (!PluginsHook.isVault()) {
             BasicUtils.getPlugin().getLogger().severe("Vault is not exists!");
             return;
         }
 
-        if (PluginsHook.isCoinsEngine() && coinsEngineCurrencyName != null && !coinsEngineCurrencyName.isEmpty()) {
-            coinsEngineCurrency = CoinsEngineAPI.getCurrency(coinsEngineCurrencyName);
-            if(coinsEngineCurrency != null) return;
+        if (PluginsHook.isCoinsEngine() && excellentEconomyCurrencyName != null && !excellentEconomyCurrencyName.isEmpty()) {
+            Class<?> coinsEngineAPIClass = null;
+            Class<?> coinsEngineCurrencyClass = null;
+
+            try {
+                coinsEngineAPIClass = Class.forName("su.nightexpress.coinsengine.api.CoinsEngineAPI");
+                coinsEngineCurrencyClass = Class.forName("su.nightexpress.coinsengine.api.currency.Currency");
+            } catch (Exception e1) {
+                try {
+                    coinsEngineAPIClass = Class.forName("su.nightexpress.excellenteconomy.api.ExcellentEconomyAPI");
+                    coinsEngineCurrencyClass = Class.forName("su.nightexpress.excellenteconomy.api.currency.ExcellentCurrency");
+                }catch (Exception e2){}
+            }
+
+            try {
+                excellentCurrencyCurrency = coinsEngineAPIClass.getDeclaredMethod("getCurrency", String.class).invoke(null, excellentEconomyCurrencyName);
+                excellentCurrencyGetBalance = coinsEngineAPIClass.getDeclaredMethod("getBalance", UUID.class, coinsEngineCurrencyClass);
+                excellentCurrencySetBalance = coinsEngineAPIClass.getDeclaredMethod("setBalance", UUID.class, coinsEngineCurrencyClass, double.class);
+                excellentCurrencyAddBalance = coinsEngineAPIClass.getDeclaredMethod("addBalance", UUID.class, coinsEngineCurrencyClass, double.class);
+                excellentCurrencyRemoveBalance = coinsEngineAPIClass.getDeclaredMethod("removeBalance", UUID.class, coinsEngineCurrencyClass, double.class);
+            }catch (Exception e3){
+
+            }
+
+            if(excellentCurrencyCurrency != null) return;
         }
 
         RegisteredServiceProvider<Economy> rsp = BasicUtils.getPlugin().getServer().getServicesManager().getRegistration(Economy.class);
@@ -113,15 +139,19 @@ public class EconomyUtil {
 
 
     public double getBalance(@NotNull UUID playerUUID){
-        if(coinsEngineCurrency != null){
-            return CoinsEngineAPI.getBalance(playerUUID, coinsEngineCurrency);
+        if(excellentCurrencyCurrency != null){
+            try {
+                return (double) excellentCurrencyGetBalance.invoke(null, playerUUID, excellentCurrencyCurrency);
+            } catch (Exception e) {
+                return 0.0;
+            }
         }
         else if(vaultAPI != null){
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUUID);
             return offlinePlayer == null ? 0.0 : vaultAPI.getBalance(offlinePlayer);
         }
         else if(playerPointsAPI != null){
-            return playerPointsAPI.lookAsync(playerUUID).getNumberOfDependents();
+            return playerPointsAPI.look(playerUUID);
         }
         else if(votingPluginAPI != null){
             VotingPluginUser votingPluginUser = votingPluginAPI.getVotingPluginUser(playerUUID);
@@ -132,8 +162,10 @@ public class EconomyUtil {
 
 
     public void setBalance(@NotNull UUID playerUUID, double amount) {
-        if(coinsEngineCurrency != null){
-            CoinsEngineAPI.setBalance(playerUUID, coinsEngineCurrency, amount);
+        if(excellentCurrencyCurrency != null){
+            try {
+                excellentCurrencySetBalance.invoke(null, playerUUID, excellentCurrencyCurrency, amount);
+            } catch (Exception e) {}
         }
         else if(vaultAPI != null){
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUUID);
@@ -143,12 +175,12 @@ public class EconomyUtil {
             }
         }
         else if(playerPointsAPI != null){
-            playerPointsAPI.setAsync(playerUUID, (int) Math.floor(amount));
+            playerPointsAPI.set(playerUUID, (int) Math.round(amount));
         }
         else if(votingPluginAPI != null){
             VotingPluginUser votingPluginUser = votingPluginAPI.getVotingPluginUser(playerUUID);
             if(votingPluginUser != null){
-                votingPluginUser.setPoints((int) Math.floor(amount));
+                votingPluginUser.setPoints((int) Math.round(amount));
             }
         }
     }
@@ -156,8 +188,10 @@ public class EconomyUtil {
 
     public void addBalance(@NotNull UUID playerUUID, double amount) {
         if(amount == 0.0) return;
-        if(coinsEngineCurrency != null){
-            CoinsEngineAPI.addBalance(playerUUID, coinsEngineCurrency, amount);
+        if(excellentCurrencyCurrency != null){
+            try {
+                excellentCurrencyAddBalance.invoke(null, playerUUID, excellentCurrencyCurrency, amount);
+            } catch (Exception e) {}
         }
         else if(vaultAPI != null){
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUUID);
@@ -166,12 +200,12 @@ public class EconomyUtil {
             }
         }
         else if(playerPointsAPI != null){
-            playerPointsAPI.giveAsync(playerUUID, (int) Math.floor(amount));
+            playerPointsAPI.giveAsync(playerUUID, (int) Math.round(amount));
         }
         else if(votingPluginAPI != null){
             VotingPluginUser votingPluginUser = votingPluginAPI.getVotingPluginUser(playerUUID);
             if(votingPluginUser != null){
-                votingPluginUser.addPoints((int) Math.floor(amount));
+                votingPluginUser.addPoints((int) Math.round(amount));
             }
         }
     }
@@ -179,8 +213,10 @@ public class EconomyUtil {
 
     public void removeBalance(@NotNull UUID playerUUID, double amount) {
         if(amount == 0.0) return;
-        if(coinsEngineCurrency != null){
-            CoinsEngineAPI.removeBalance(playerUUID, coinsEngineCurrency, amount);
+        if(excellentCurrencyCurrency != null){
+            try {
+                excellentCurrencyRemoveBalance.invoke(null, playerUUID, excellentCurrencyCurrency, amount);
+            } catch (Exception e) {}
         }
         else if(vaultAPI != null){
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUUID);
@@ -189,27 +225,31 @@ public class EconomyUtil {
             }
         }
         else if(playerPointsAPI != null){
-            playerPointsAPI.takeAsync(playerUUID, (int) Math.floor(amount));
+            playerPointsAPI.take(playerUUID, (int) Math.round(amount));
         }
         else if(votingPluginAPI != null){
             VotingPluginUser votingPluginUser = votingPluginAPI.getVotingPluginUser(playerUUID);
             if(votingPluginUser != null){
-                votingPluginUser.removePoints((int) Math.floor(amount));
+                votingPluginUser.removePoints((int) Math.round(amount));
             }
         }
     }
 
 
     public boolean isHaveMoney(@NotNull UUID playerUUID, double amount){
-        if(coinsEngineCurrency != null){
-            return CoinsEngineAPI.getBalance(playerUUID, coinsEngineCurrency) >= amount;
+        if(excellentCurrencyCurrency != null){
+            try {
+                return (double) excellentCurrencyGetBalance.invoke(null, playerUUID, excellentCurrencyCurrency) >= amount;
+            } catch (Exception e) {
+                return false;
+            }
         }
         else if(vaultAPI != null){
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerUUID);
             return offlinePlayer == null ? false : vaultAPI.getBalance(offlinePlayer) >= amount;
         }
         else if(playerPointsAPI != null){
-            return playerPointsAPI.lookAsync(playerUUID).getNumberOfDependents() >= amount;
+            return playerPointsAPI.look(playerUUID) >= amount;
         }
         else if(votingPluginAPI != null){
             VotingPluginUser votingPluginUser = votingPluginAPI.getVotingPluginUser(playerUUID);
@@ -219,8 +259,8 @@ public class EconomyUtil {
     }
 
 
-    public void reload(boolean useVault, @Nullable String coinsEngineCurrencyName, boolean usePlayerPoints, boolean useVotingPlugin){
-        initEconomy(useVault, coinsEngineCurrencyName, usePlayerPoints, useVotingPlugin);
+    public void reload(boolean useVault, @Nullable String excellentEconomyCurrencyName, boolean usePlayerPoints, boolean useVotingPlugin){
+        initEconomy(useVault, excellentEconomyCurrencyName, usePlayerPoints, useVotingPlugin);
     }
 
 }

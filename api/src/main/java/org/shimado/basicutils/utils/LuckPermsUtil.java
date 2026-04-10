@@ -4,6 +4,7 @@ import net.luckperms.api.LuckPerms;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.node.Node;
 import net.luckperms.api.node.types.InheritanceNode;
+import org.jetbrains.annotations.NotNull;
 import org.shimado.basicutils.BasicUtils;
 
 import java.time.Duration;
@@ -19,7 +20,7 @@ public class LuckPermsUtil {
         this.luckPerms = BasicUtils.getPlugin().getServer().getServicesManager().load(LuckPerms.class);
     }
 
-    public List<String> getPrimaryPlayerGroup(UUID playerUUID, boolean hasExpiry){
+    public List<String> getPrimaryPlayerGroup(@NotNull UUID playerUUID, boolean hasExpiry){
         User user = this.luckPerms.getUserManager().getUser(playerUUID);
         if(user == null){
             this.luckPerms.getUserManager().loadUser(playerUUID).join();
@@ -42,7 +43,7 @@ public class LuckPermsUtil {
     }
 
 
-    public void addGroupToPlayer(UUID playerUUID, String groupName, long expiry, String defaultContextKeys, String contextValue) {
+    public void addGroupToPlayer(@NotNull UUID playerUUID, @NotNull String groupName, long expiry, @NotNull String defaultContextKeys, @NotNull String contextValue) {
         this.luckPerms.getUserManager().modifyUser(playerUUID, user -> {
 
             if(expiry != -1){
@@ -75,7 +76,7 @@ public class LuckPermsUtil {
     }
 
 
-    public void removeGroupFromPlayer(UUID playerUUID, String groupName, boolean hasExpiry) {
+    public void removeGroupFromPlayer(@NotNull UUID playerUUID, @NotNull String groupName, boolean hasExpiry) {
         User user = this.luckPerms.getUserManager().getUser(playerUUID);
         if(user == null) return;
         user.data().clear(node ->
@@ -85,7 +86,7 @@ public class LuckPermsUtil {
     }
 
 
-    public boolean hasGroup(UUID playerUUID, String groupName) {
+    public boolean hasGroup(@NotNull UUID playerUUID, @NotNull String groupName) {
         User user = this.luckPerms.getUserManager().getUser(playerUUID);
         if (user == null) return false;
         return user.getNodes().stream().anyMatch(node -> node.getKey().equals("group." + groupName));

@@ -1,9 +1,9 @@
 package org.shimado.basicutils.utils;
 
 import org.bukkit.ChatColor;
+import org.jetbrains.annotations.NotNull;
 import org.shimado.basicutils.BasicUtils;
 
-import javax.annotation.Nonnull;
 import java.awt.*;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -18,8 +18,8 @@ public class ColorUtil {
     private static final Pattern pattern3 = Pattern.compile("&[0123456789abcdefklmnn]");
 
 
-    @Nonnull
-    public static String getColor(@Nonnull String text) {
+    @NotNull
+    public static String getColor(@NotNull String text) {
         Matcher matcher1 = pattern1.matcher(text);
         if(isHex){
             while (matcher1.find()){
@@ -78,24 +78,24 @@ public class ColorUtil {
     }
 
 
-    @Nonnull
-    public static List<String> getColorList(@Nonnull List<String> text) {
+    @NotNull
+    public static List<String> getColorList(@NotNull List<String> text) {
         return text.stream().map(ColorUtil::getColor).collect(Collectors.toList());
     }
 
 
-    public static boolean isAnyColor(@Nonnull String hexOrTagColor){
+    public static boolean isAnyColor(@NotNull String hexOrTagColor){
         return pattern2.matcher(hexOrTagColor).find() || pattern3.matcher(hexOrTagColor).find();
     }
 
 
-    public static boolean isHexColor(@Nonnull String hexColor){
+    public static boolean isHexColor(@NotNull String hexColor){
         return pattern2.matcher(hexColor).find();
     }
 
 
-    @Nonnull
-    public static Color getHexColor(@Nonnull String hexColor){
+    @NotNull
+    public static Color getHexColor(@NotNull String hexColor){
         if(hexColor.equalsIgnoreCase("transparent")) return new Color(0, 0, 0, 0);
         int[] rgb = new int[]{
                 Integer.parseInt(hexColor.substring(1, 3), 16),

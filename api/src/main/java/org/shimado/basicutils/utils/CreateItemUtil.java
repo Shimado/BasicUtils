@@ -14,10 +14,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.shimado.basicutils.BasicUtils;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -29,21 +29,21 @@ public class CreateItemUtil {
     private static final boolean isCustomModelData = BasicUtils.getVersionControl().isCustomModelData();
     private static final boolean isGlowingAndHiddenNamesUpdated = BasicUtils.getVersionControl().isGlowingAndHiddenNamesUpdated();
     private static final boolean isHeadMetaUpdated = BasicUtils.getVersionControl().isHeadMetaUpdated();
-    private static final ItemFlag[] itemFlags = Arrays.stream(new String[]{"HIDE_ENCHANTS", "HIDE_ATTRIBUTES", "HIDE_UNBREAKABLE", "HIDE_DESTROYS", "HIDE_PLACED_ON", "HIDE_ADDITIONAL_TOOLTIP", "HIDE_DYE", "HIDE_ARMOR_TRIM"})
+    private static final ItemFlag[] itemFlags = Arrays.stream(new String[]{"HIDE_ENCHANTS", "HIDE_ATTRIBUTES", "HIDE_UNBREAKABLE", "HIDE_DESTROYS", "HIDE_PLACED_ON", "HIDE_ADDITIONAL_TOOLTIP", "HIDE_DYE", "HIDE_ARMOR_TRIM", "HIDE_CUSTOM_DATA"})
             .map(it -> {
                 try {
                     return ItemFlag.valueOf(it);
                 }catch (Exception e){
                     return null;
                 }
-            }).filter(Objects::nonNull)
+            }).filter(it -> it != null)
             .toArray(ItemFlag[]::new);
 
 
     private static Inventory convertInv = Bukkit.createInventory(null, 9, "BasicTestInventory");
 
-    @Nonnull
-    public static ItemStack create(@Nonnull Object materialOrHeadURL, @Nonnull String displayName, @Nonnull List<String> lore, boolean glowing, int customModelData, boolean hideNames) {
+    @NotNull
+    public static ItemStack create(@NotNull Object materialOrHeadURL, @NotNull String displayName, @NotNull List<String> lore, boolean glowing, int customModelData, boolean hideNames) {
         ItemStack item = getItemStackFrom(materialOrHeadURL).clone();
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(ColorUtil.getColor(displayName));
@@ -51,7 +51,7 @@ public class CreateItemUtil {
 
         if(isGlowingAndHiddenNamesUpdated){
             if(glowing) meta.setEnchantmentGlintOverride(true);
-            if(hideNames) meta.setHideTooltip(true);
+            if(hideNames || displayName.isEmpty() || displayName.equals(" ")) meta.setHideTooltip(true);
         }else{
             if(glowing) meta.addEnchant(Enchantment.KNOCKBACK, 1, true);
         }
@@ -63,20 +63,21 @@ public class CreateItemUtil {
         meta.addItemFlags(itemFlags);
         item.setItemMeta(meta);
         convertInv.setItem(0, item);
+
         return convertInv.getItem(0);
     }
 
 
-    @Nonnull
-    public static ItemStack create(@Nonnull Object materialOrHeadURL, @Nonnull String displayName, @Nonnull List<String> lore, boolean glowing, int customModelData, boolean hideNames, @Nonnull String NBTTag, @Nonnull String NBTTagValue){
+    @NotNull
+    public static ItemStack create(@NotNull Object materialOrHeadURL, @NotNull String displayName, @NotNull List<String> lore, boolean glowing, int customModelData, boolean hideNames, @NotNull String NBTTag, @NotNull String NBTTagValue){
         ItemStack item = create(materialOrHeadURL, displayName, lore, glowing, customModelData, hideNames);
         convertInv.setItem(0, BasicUtils.getVersionControl().getVersionControl().createItemWithTag(item, NBTTag, NBTTagValue));
         return convertInv.getItem(0);
     }
 
 
-    @Nonnull
-    public static ItemStack getItemStackFrom(@Nonnull Object materialOrHeadURL){
+    @NotNull
+    public static ItemStack getItemStackFrom(@NotNull Object materialOrHeadURL){
         if(materialOrHeadURL instanceof String && ((String) materialOrHeadURL).length() > 30){
             return getSkull((String) materialOrHeadURL);
         }
@@ -86,14 +87,15 @@ public class CreateItemUtil {
         else if(materialOrHeadURL instanceof Material){
             return new ItemStack((Material) materialOrHeadURL);
         }
-        else{
+        else if(materialOrHeadURL instanceof ItemStack){
             return (ItemStack) materialOrHeadURL;
         }
+        else return new ItemStack(Material.STONE);
     }
 
 
-    @Nonnull
-    public static GameProfile getGameProfile(@Nonnull UUID uuid, @Nonnull String url){
+    @NotNull
+    public static GameProfile getGameProfile(@NotNull UUID uuid, @NotNull String url){
         GameProfile profile = new GameProfile(uuid, "");
         byte[] encodedData = Base64.getEncoder().encode(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
         profile.getProperties().put("textures", new Property("textures", new String(encodedData)));
@@ -101,7 +103,7 @@ public class CreateItemUtil {
     }
 
 
-    @Nonnull
+    @NotNull
     public static ItemStack getHeadFromBase64(@Nullable String base64) {
         ItemStack head = new ItemStack(MaterialUtil.getHead());
         if (base64 == null || base64.isEmpty()) return head;
@@ -124,7 +126,7 @@ public class CreateItemUtil {
 
 
     @Nullable
-    public static String getPlayerHeadBase64(@Nonnull Player player) {
+    public static String getPlayerHeadBase64(@NotNull Player player) {
         try {
             GameProfile profile = BasicUtils.getVersionControl().getVersionControl().getGameProfile(player);
             Collection<Property> textures = profile.getProperties().get("textures");
@@ -138,8 +140,8 @@ public class CreateItemUtil {
     }
 
 
-    @Nonnull
-    public static ItemStack getSkull(@Nonnull String url) {
+    @NotNull
+    public static ItemStack getSkull(@NotNull String url) {
         url = "http://textures.minecraft.net/texture/" + url;
 
         if(!isHeadMetaUpdated){
@@ -178,8 +180,8 @@ public class CreateItemUtil {
     }
 
 
-    @Nonnull
-    public static ItemStack getHeadOfPlayerOnTheServer(@Nonnull UUID playerUUID){
+    @NotNull
+    public static ItemStack getHeadOfPlayerOnTheServer(@NotNull UUID playerUUID){
         ItemStack item = MaterialUtil.getHead();
         SkullMeta meta = (SkullMeta) item.getItemMeta();
         OfflinePlayer offPlayer = Bukkit.getOfflinePlayer(playerUUID);
@@ -190,16 +192,31 @@ public class CreateItemUtil {
     }
 
 
-    @Nonnull
-    public static ItemStack getCloneAmount(@Nonnull ItemStack itemToClone, int amount){
+    @NotNull
+    public static ItemStack getHeadOfPlayerOnTheServerWithCustomModelData(@NotNull UUID playerUUID, int customModelData){
+        ItemStack item = MaterialUtil.getHead();
+        SkullMeta meta = (SkullMeta) item.getItemMeta();
+        OfflinePlayer offPlayer = Bukkit.getOfflinePlayer(playerUUID);
+        if(offPlayer == null) return item;
+        meta.setOwningPlayer(Bukkit.getOfflinePlayer(playerUUID));
+        if(customModelData > 0 && isCustomModelData){
+            meta.setCustomModelData(customModelData);
+        }
+        item.setItemMeta(meta);
+        return item;
+    }
+
+
+    @NotNull
+    public static ItemStack getCloneAmount(@NotNull ItemStack itemToClone, int amount){
         ItemStack item = itemToClone.clone();
         item.setAmount(amount);
         return item;
     }
 
 
-    @Nonnull
-    public static ItemStack getCloneAmount1(@Nonnull ItemStack itemToClone){
+    @NotNull
+    public static ItemStack getCloneAmount1(@NotNull ItemStack itemToClone){
         return getCloneAmount(itemToClone, 1);
     }
 
@@ -217,14 +234,14 @@ public class CreateItemUtil {
     }
 
 
-    @Nonnull
-    public static String getItemTag(@Nonnull ItemStack item, @Nonnull String tag){
+    @NotNull
+    public static String getItemTag(@NotNull ItemStack item, @NotNull String tag){
         return BasicUtils.getVersionControl().getVersionControl().getTag(item, tag);
     }
 
 
     @Nullable
-    public static ItemStack replaceItemPlaceholders(@Nullable ItemStack item, @Nonnull String displayName, @Nonnull List<String> lore, @Nonnull Map<String, String> placeholders){
+    public static ItemStack replaceItemPlaceholders(@Nullable ItemStack item, @NotNull String displayName, @NotNull List<String> lore, @NotNull Map<String, String> placeholders){
         if(item == null) return null;
 
         String newTitle = displayName;

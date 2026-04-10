@@ -2,9 +2,9 @@ package org.shimado.basicutils.utils;
 
 import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.util.MessageUtil;
+import org.jetbrains.annotations.NotNull;
 import org.shimado.basicutils.BasicUtils;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,7 +33,7 @@ public class DiscordUtil {
     }
 
 
-    public void sendMessage(@Nonnull String textChannel, @Nonnull List<String> messages){
+    public void sendMessage(@NotNull String textChannel, @NotNull List<String> messages){
         if(isDiscordSRVEnabled){
             github.scarsz.discordsrv.util.DiscordUtil.sendMessage(
                     DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName(textChannel),

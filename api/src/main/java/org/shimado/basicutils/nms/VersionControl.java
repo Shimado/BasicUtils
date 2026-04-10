@@ -1,8 +1,8 @@
 package org.shimado.basicutils.nms;
 
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 
 public class VersionControl {
@@ -17,6 +17,7 @@ public class VersionControl {
     private IAnvilHandler anvilHandler = null;
 
 
+    @NotNull
     public String getVersion(){
         if(version == null){
             switch (Bukkit.getServer().getBukkitVersion().split("-")[0]){
@@ -78,11 +79,30 @@ public class VersionControl {
                 case "1.21.9":
                 case "1.21.10": version = "v1_21_R6"; break;
                 case "1.21.11": version = "v1_21_R7"; break;
+
+                case "26.1":
+                case "26.1.1":
+                case "26.1.2":
+                case "26.1.3":
+                case "26.1.4":
+                case "26.1.5": version = "v26_1_R1"; break;
+
+                default: {
+                    switch (Bukkit.getServer().getVersion().split("-")[0]){
+                        case "26.1":
+                        case "26.1.1":
+                        case "26.1.2":
+                        case "26.1.3":
+                        case "26.1.4":
+                        case "26.1.5": version = "v26_1_R1"; break;
+                    }
+                }
             }
             try {
                 versionControl = (IVersionControl) Class.forName("org.shimado.basicutils." + version + ".VersionInstance").getConstructor().newInstance(null);
                 invHandler = (IInvHandler) Class.forName("org.shimado.basicutils." + version + ".InvHandler").getConstructor().newInstance(null);
                 anvilHandler = (IAnvilHandler) Class.forName("org.shimado.basicutils." + version + ".AnvilHandler").getConstructor().newInstance(null);
+
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -91,17 +111,17 @@ public class VersionControl {
     }
 
 
-    @Nonnull
+    @NotNull
     public IVersionControl getVersionControl(){
         return versionControl;
     }
 
-    @Nonnull
+    @NotNull
     public IInvHandler getInvHandler(){
         return invHandler;
     }
 
-    @Nonnull
+    @NotNull
     public IAnvilHandler getAnvilHandler(){
         return anvilHandler;
     }
@@ -178,4 +198,34 @@ public class VersionControl {
         ).stream().noneMatch(it -> version.equals(it));
     }
 
+
+    public boolean is26_1() {
+        return Arrays.asList(
+                "v1_12_R1",
+                "v1_13_R1",
+                "v1_13_R2",
+                "v1_14_R1",
+                "v1_15_R1",
+                "v1_16_R1",
+                "v1_16_R2",
+                "v1_16_R3",
+                "v1_17_R1",
+                "v1_18_R1",
+                "v1_18_R2",
+                "v1_19_R1",
+                "v1_19_R2",
+                "v1_19_R3",
+                "v1_20_R1",
+                "v1_20_R2",
+                "v1_20_R3",
+                "v1_20_R4",
+                "v1_21_R1",
+                "v1_21_R2",
+                "v1_21_R3",
+                "v1_21_R4",
+                "v1_21_R5",
+                "v1_21_R6",
+                "v1_21_R7"
+        ).stream().noneMatch(it -> version.equals(it));
+    }
 }

@@ -98,13 +98,22 @@ public class VersionInstance implements IVersionControl {
 
 
     @Override
-    public void createFirework(Player player, Location loc, ItemStack fireworkItem) {
+    public void createFirework(List<Player> players, Location loc, ItemStack fireworkItem) {
         EntityFireworks firework = new EntityFireworks(NMSUtil.getWorld(loc), loc.getX(), loc.getY(), loc.getZ(), CraftItemStack.asNMSCopy(fireworkItem));
-        NMSUtil.sendPacket(player, new PacketPlayOutSpawnEntity(firework));
+        Packet spawnPacket = new PacketPlayOutSpawnEntity(firework);
+        players.forEach(p -> NMSUtil.sendPacket(p, spawnPacket));
+
         firework.f = 0;
-        NMSUtil.sendPacket(player, new PacketPlayOutEntityMetadata(NMSUtil.getEntityID(firework), firework.al().b()));
-        NMSUtil.sendPacket(player, new PacketPlayOutEntityStatus(firework, (byte) 17));
-        NMSUtil.sendPacket(player, new PacketPlayOutEntityDestroy(NMSUtil.getEntityID(firework)));
+
+        Packet metaPacket = new PacketPlayOutEntityMetadata(NMSUtil.getEntityID(firework), firework.al().b());
+        Packet statusPacket = new PacketPlayOutEntityStatus(firework, (byte) 17);
+        Packet destroyPacket = new PacketPlayOutEntityDestroy(NMSUtil.getEntityID(firework));
+
+        players.forEach(p -> {
+            NMSUtil.sendPacket(p, metaPacket);
+            NMSUtil.sendPacket(p, statusPacket);
+            NMSUtil.sendPacket(p, destroyPacket);
+        });
     }
 
     @Override

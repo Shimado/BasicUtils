@@ -1,29 +1,26 @@
 package org.shimado.basicutils.utils;
 
 import org.bukkit.Particle;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class ParticlesUtil {
 
-    private static List<Particle> savedParticles = new ArrayList<>();
+    private static Map<String, Particle> savedParticles = new HashMap<>();
 
-    @Nonnull
-    public static Particle getParticle(@Nonnull String[] particles) {
+    @NotNull
+    public static Particle getParticle(@NotNull String[] particles) {
         for(String stringParticle : particles){
+            String particleName = stringParticle.toUpperCase();
 
-            for(Particle particle : savedParticles){
-                if(particle.toString().equalsIgnoreCase(stringParticle)){
-                    return particle;
-                }
+            if(savedParticles.containsKey(particleName)){
+                return savedParticles.get(particleName);
             }
 
-            if (Arrays.stream(Particle.values()).anyMatch(it -> it.name().equalsIgnoreCase(stringParticle))) {
-                Particle particle = Particle.valueOf(stringParticle.toUpperCase());
-                savedParticles.add(particle);
+            if (Arrays.stream(Particle.values()).anyMatch(it -> it.name().equals(particleName))) {
+                Particle particle = Particle.valueOf(particleName);
+                savedParticles.put(particleName, particle);
                 return particle;
             }
         }

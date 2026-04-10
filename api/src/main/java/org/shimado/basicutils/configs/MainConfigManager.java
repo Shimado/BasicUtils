@@ -44,7 +44,7 @@ public class MainConfigManager {
 
     @FunctionalInterface
     public interface ConfigRunnable {
-        void run(@Nonnull YamlConfiguration config, @Nonnull YamlConfiguration messages);
+        boolean run(@Nonnull YamlConfiguration config, @Nonnull YamlConfiguration messages);
     }
 
     @FunctionalInterface
@@ -71,8 +71,7 @@ public class MainConfigManager {
         initMessageConfig(messagesRunnable);
 
         // Если не null то выполнит задачу и сохранит
-        if(configRunnable != null){
-            configRunnable.run(config, messages);
+        if(configRunnable != null && configRunnable.run(config, messages)){
             save();
         }
     }
@@ -95,8 +94,7 @@ public class MainConfigManager {
                 messages = YamlConfiguration.loadConfiguration(messageFile);
 
                 // Если не null то выполнит задачу и сохранит
-                if(configRunnable != null){
-                    configRunnable.run(config, messages);
+                if(configRunnable != null && configRunnable.run(config, messages)){
                     save();
                 }
 
