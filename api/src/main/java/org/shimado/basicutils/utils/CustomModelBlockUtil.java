@@ -53,7 +53,7 @@ public class CustomModelBlockUtil {
         Bukkit.getScheduler().scheduleSyncDelayedTask(BasicUtils.getPlugin(), () -> {
 
             for(Location l : locs){
-                removeTexture(l);
+                _removeTexture(l);
 
                 Location loc = l.clone();
                 if(toCenterModel){

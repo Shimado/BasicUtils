@@ -8,6 +8,7 @@ import org.black_ixx.playerpoints.PlayerPoints;
 import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,12 +22,18 @@ public class EconomyUtil {
     private Economy vaultAPI;
     private PlayerPointsAPI playerPointsAPI;
     private UserManager votingPluginAPI;
+    private Object excellentCurrencyAPI;
 
     private Object excellentCurrencyCurrency;
     private Method excellentCurrencyGetBalance;
+    private Method excellentCurrencyGetBalanceAsync;
     private Method excellentCurrencySetBalance;
+    private Method excellentCurrencySetBalanceAsync;
     private Method excellentCurrencyAddBalance;
+    private Method excellentCurrencyAddBalanceAsync;
     private Method excellentCurrencyRemoveBalance;
+    private Method excellentCurrencyRemoveBalanceAsync;
+    private Class<?> CompletableFutureClass;
 
     public EconomyUtil(boolean useVault, @Nullable String excellentEconomyCurrencyName, boolean usePlayerPoints, boolean useVotingPlugin) {
         reload(useVault, excellentEconomyCurrencyName, usePlayerPoints, useVotingPlugin);
@@ -57,6 +64,7 @@ public class EconomyUtil {
         vaultAPI = null;
         playerPointsAPI = null;
         votingPluginAPI = null;
+        excellentCurrencyAPI = null;
         excellentCurrencyCurrency = null;
 
         if(useVault){
@@ -82,26 +90,40 @@ public class EconomyUtil {
             Class<?> coinsEngineCurrencyClass = null;
 
             try {
-                coinsEngineAPIClass = Class.forName("su.nightexpress.coinsengine.api.CoinsEngineAPI");
-                coinsEngineCurrencyClass = Class.forName("su.nightexpress.coinsengine.api.currency.Currency");
+                coinsEngineAPIClass = Class.forName("su.nightexpress.excellenteconomy.api.ExcellentEconomyAPI");
+                coinsEngineCurrencyClass = Class.forName("su.nightexpress.excellenteconomy.api.currency.ExcellentCurrency");
             } catch (Exception e1) {
                 try {
-                    coinsEngineAPIClass = Class.forName("su.nightexpress.excellenteconomy.api.ExcellentEconomyAPI");
-                    coinsEngineCurrencyClass = Class.forName("su.nightexpress.excellenteconomy.api.currency.ExcellentCurrency");
+                    coinsEngineAPIClass = Class.forName("su.nightexpress.coinsengine.api.CoinsEngineAPI");
+                    coinsEngineCurrencyClass = Class.forName("su.nightexpress.coinsengine.api.currency.Currency");
                 }catch (Exception e2){}
             }
 
             try {
-                excellentCurrencyCurrency = coinsEngineAPIClass.getDeclaredMethod("getCurrency", String.class).invoke(null, excellentEconomyCurrencyName);
-                excellentCurrencyGetBalance = coinsEngineAPIClass.getDeclaredMethod("getBalance", UUID.class, coinsEngineCurrencyClass);
-                excellentCurrencySetBalance = coinsEngineAPIClass.getDeclaredMethod("setBalance", UUID.class, coinsEngineCurrencyClass, double.class);
-                excellentCurrencyAddBalance = coinsEngineAPIClass.getDeclaredMethod("addBalance", UUID.class, coinsEngineCurrencyClass, double.class);
-                excellentCurrencyRemoveBalance = coinsEngineAPIClass.getDeclaredMethod("removeBalance", UUID.class, coinsEngineCurrencyClass, double.class);
-            }catch (Exception e3){
+                RegisteredServiceProvider<?> provider = Bukkit.getServer().getServicesManager().getRegistration(coinsEngineAPIClass);
+                if (provider != null) {
+                    excellentCurrencyAPI = provider.getProvider();
+                }
 
+                excellentCurrencyCurrency = coinsEngineAPIClass.getDeclaredMethod("getCurrency", String.class).invoke(excellentCurrencyAPI, excellentEconomyCurrencyName);
+                excellentCurrencyGetBalance = coinsEngineAPIClass.getDeclaredMethod("getBalance", Player.class, coinsEngineCurrencyClass);
+                excellentCurrencyGetBalanceAsync = coinsEngineAPIClass.getDeclaredMethod("getBalanceAsync", UUID.class, coinsEngineCurrencyClass);
+
+                excellentCurrencySetBalance = coinsEngineAPIClass.getDeclaredMethod("setBalance", Player.class, coinsEngineCurrencyClass, double.class);
+                excellentCurrencySetBalanceAsync = coinsEngineAPIClass.getDeclaredMethod("setBalanceAsync", UUID.class, coinsEngineCurrencyClass, double.class);
+
+                excellentCurrencyAddBalance = coinsEngineAPIClass.getDeclaredMethod("deposit", Player.class, coinsEngineCurrencyClass, double.class);
+                excellentCurrencyAddBalanceAsync = coinsEngineAPIClass.getDeclaredMethod("depositAsync", UUID.class, coinsEngineCurrencyClass, double.class);
+
+                excellentCurrencyRemoveBalance = coinsEngineAPIClass.getDeclaredMethod("withdraw", Player.class, coinsEngineCurrencyClass, double.class);
+                excellentCurrencyRemoveBalanceAsync = coinsEngineAPIClass.getDeclaredMethod("withdrawAsync", UUID.class, coinsEngineCurrencyClass, double.class);
+                CompletableFutureClass = Class.forName("java.util.concurrent.CompletableFuture");
+            }catch (Exception e3){
+                excellentCurrencyAPI = null;
+                throw new RuntimeException(e3);
             }
 
-            if(excellentCurrencyCurrency != null) return;
+            if(excellentCurrencyAPI != null && excellentCurrencyCurrency != null) return;
         }
 
         RegisteredServiceProvider<Economy> rsp = BasicUtils.getPlugin().getServer().getServicesManager().getRegistration(Economy.class);
@@ -141,7 +163,13 @@ public class EconomyUtil {
     public double getBalance(@NotNull UUID playerUUID){
         if(excellentCurrencyCurrency != null){
             try {
-                return (double) excellentCurrencyGetBalance.invoke(null, playerUUID, excellentCurrencyCurrency);
+                Player player = Bukkit.getPlayer(playerUUID);
+                if(PlayerUtil.isPlayerOnline(player)){
+                    return (double) excellentCurrencyGetBalance.invoke(excellentCurrencyAPI, player, excellentCurrencyCurrency);
+                }else{
+                    Object future = excellentCurrencyGetBalanceAsync.invoke(excellentCurrencyAPI, playerUUID, excellentCurrencyCurrency);
+                    return (double) CompletableFutureClass.getDeclaredMethod("join").invoke(future);
+                }
             } catch (Exception e) {
                 return 0.0;
             }
@@ -164,7 +192,13 @@ public class EconomyUtil {
     public void setBalance(@NotNull UUID playerUUID, double amount) {
         if(excellentCurrencyCurrency != null){
             try {
-                excellentCurrencySetBalance.invoke(null, playerUUID, excellentCurrencyCurrency, amount);
+                Player player = Bukkit.getPlayer(playerUUID);
+                if(PlayerUtil.isPlayerOnline(player)){
+                    excellentCurrencySetBalance.invoke(excellentCurrencyAPI, player, excellentCurrencyCurrency, amount);
+                }else{
+                    Object future = excellentCurrencySetBalanceAsync.invoke(excellentCurrencyAPI, playerUUID, excellentCurrencyCurrency, amount);
+                    CompletableFutureClass.getDeclaredMethod("join").invoke(future);
+                }
             } catch (Exception e) {}
         }
         else if(vaultAPI != null){
@@ -190,7 +224,13 @@ public class EconomyUtil {
         if(amount == 0.0) return;
         if(excellentCurrencyCurrency != null){
             try {
-                excellentCurrencyAddBalance.invoke(null, playerUUID, excellentCurrencyCurrency, amount);
+                Player player = Bukkit.getPlayer(playerUUID);
+                if(PlayerUtil.isPlayerOnline(player)){
+                    excellentCurrencyAddBalance.invoke(excellentCurrencyAPI, player, excellentCurrencyCurrency, amount);
+                }else{
+                    Object future = excellentCurrencyAddBalanceAsync.invoke(excellentCurrencyAPI, playerUUID, excellentCurrencyCurrency, amount);
+                    CompletableFutureClass.getDeclaredMethod("join").invoke(future);
+                }
             } catch (Exception e) {}
         }
         else if(vaultAPI != null){
@@ -215,7 +255,13 @@ public class EconomyUtil {
         if(amount == 0.0) return;
         if(excellentCurrencyCurrency != null){
             try {
-                excellentCurrencyRemoveBalance.invoke(null, playerUUID, excellentCurrencyCurrency, amount);
+                Player player = Bukkit.getPlayer(playerUUID);
+                if(PlayerUtil.isPlayerOnline(player)){
+                    excellentCurrencyRemoveBalance.invoke(excellentCurrencyAPI, player, excellentCurrencyCurrency, amount);
+                }else{
+                    Object future = excellentCurrencyRemoveBalanceAsync.invoke(excellentCurrencyAPI, playerUUID, excellentCurrencyCurrency, amount);
+                    CompletableFutureClass.getDeclaredMethod("join").invoke(future);
+                }
             } catch (Exception e) {}
         }
         else if(vaultAPI != null){
@@ -239,7 +285,13 @@ public class EconomyUtil {
     public boolean isHaveMoney(@NotNull UUID playerUUID, double amount){
         if(excellentCurrencyCurrency != null){
             try {
-                return (double) excellentCurrencyGetBalance.invoke(null, playerUUID, excellentCurrencyCurrency) >= amount;
+                Player player = Bukkit.getPlayer(playerUUID);
+                if(PlayerUtil.isPlayerOnline(player)){
+                    return (double) excellentCurrencyGetBalance.invoke(excellentCurrencyAPI, player, excellentCurrencyCurrency) >= amount;
+                }else{
+                    Object future = excellentCurrencyGetBalanceAsync.invoke(excellentCurrencyAPI, playerUUID, excellentCurrencyCurrency);
+                    return (double) CompletableFutureClass.getDeclaredMethod("join").invoke(future) >= amount;
+                }
             } catch (Exception e) {
                 return false;
             }

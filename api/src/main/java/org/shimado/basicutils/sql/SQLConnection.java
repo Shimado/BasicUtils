@@ -1,9 +1,10 @@
 package org.shimado.basicutils.sql;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.shimado.basicutils.BasicUtils;
+import org.shimado.basicutils.cycles.SchedulerAdapter;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
@@ -12,6 +13,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -26,12 +28,15 @@ public class SQLConnection {
     private Map<String, Object> SQLData;
     private List<String> tables;
 
-    public SQLConnection(boolean isMySQL, boolean isSQLite, @Nonnull Map<String, Object> SQLData, @Nonnull List<String> tables){
+    private final Class<?> pluginClass;
+
+    public SQLConnection(boolean isMySQL, boolean isSQLite, @NotNull Map<String, Object> SQLData, @NotNull List<String> tables){
+        this.pluginClass = BasicUtils.getPlugin().getClass();
         reload(isMySQL, isSQLite, SQLData, tables);
     }
 
 
-    public void reload(boolean isMySQL, boolean isSQLite, @Nonnull Map<String, Object> SQLData, @Nonnull List<String> tables){
+    public void reload(boolean isMySQL, boolean isSQLite, @NotNull Map<String, Object> SQLData, @NotNull List<String> tables){
         this.isMySQL = isMySQL;
         this.isSQLite = isSQLite;
         this.SQLData = SQLData;
@@ -62,7 +67,7 @@ public class SQLConnection {
         }
 
         if(connection != null){
-            tables.forEach(it -> initTable(it));
+            tables.forEach(this::initTable);
         }
     }
 
@@ -71,8 +76,8 @@ public class SQLConnection {
      * ОТКРЫВАЕТ СОЕДИНЕНИЕ MYSQL
      * **/
 
-    @Nonnull
-    private Connection createMySQLConnection(@Nonnull String host, int port, @Nonnull String database, @Nonnull String username, @Nonnull String password){
+    @NotNull
+    private Connection createMySQLConnection(@NotNull String host, int port, @NotNull String database, @NotNull String username, @NotNull String password){
         Properties properties = new Properties();
         properties.setProperty("user", username);
         properties.setProperty("password", password);
@@ -82,7 +87,7 @@ public class SQLConnection {
         try {
             return DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, properties);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to connect to MySQL: " + host + ":" + port + "/" + database, e);
         }
     }
 
@@ -91,18 +96,18 @@ public class SQLConnection {
      * ОТКРЫВАЕТ СОЕДИНЕНИЕ SQLITE
      * **/
 
-    @Nonnull
+    @NotNull
     private Connection createSQLiteConnection(){
         try {
             sqliteFile = new File(BasicUtils.getPlugin().getDataFolder(), "storage.db");
-            if(!sqliteFile.exists()){
-                sqliteFile.createNewFile();
+            if (!sqliteFile.exists() && !sqliteFile.createNewFile()) {
+                throw new RuntimeException("Cannot create SQLite file: " + sqliteFile.getAbsolutePath());
             }
 
             Class.forName("org.sqlite.JDBC");
             return DriverManager.getConnection("jdbc:sqlite:" + sqliteFile.getAbsolutePath());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to open SQLite: " + e.getMessage(), e);
         }
     }
 
@@ -111,12 +116,11 @@ public class SQLConnection {
      * ПОЛУЧАЕТ СОЕДИНЕНИЕ
      * **/
 
-    @Nonnull
+    @Nullable
     public Connection getConnection(){
         try {
-            if(connection == null || !connection.isValid(2)){
+            if (connection == null || !connection.isValid(2)) {
                 dbInit();
-                return connection;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -130,12 +134,13 @@ public class SQLConnection {
      * **/
 
     public void closeConnection(){
+        if (connection == null) return;
         try {
-            if(connection != null && !connection.isClosed()){
-                connection.close();
-            }
+            if (!connection.isClosed()) connection.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            connection = null;
         }
     }
 
@@ -144,16 +149,19 @@ public class SQLConnection {
      * ИНИЦИИРУЕТ ТАБЛИЦУ
      * **/
 
-    private void initTable(@Nonnull String type){
+    private void initTable(@NotNull String type){
         try {
-            Class clazz = Class.forName(BasicUtils.getPlugin().getClass().getName());
             InputStream inputStream = null;
             if(isMySQL){
-                inputStream = clazz.getResourceAsStream("/sql/" + type + ".sql");
+                inputStream = pluginClass.getResourceAsStream("/sql/" + type + ".sql");
             }
             if(inputStream == null){
-                inputStream = clazz.getResourceAsStream("/sqlite/" + type + ".sql");
+                inputStream = pluginClass.getResourceAsStream("/sqlite/" + type + ".sql");
             }
+            if (inputStream == null) {
+                throw new RuntimeException("SQL resource not found for table: " + type);
+            }
+
             String setup = new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining("\n"));
 
             for(String query : setup.split(";")){
@@ -162,19 +170,34 @@ public class SQLConnection {
                 }
             }
         } catch (Exception e) {
+            throw new RuntimeException("Failed to init table '" + type + "': " + e.getMessage(), e);
+        }
+    }
+
+
+    public void closeStatement(@Nullable PreparedStatement preparedStatement) {
+        if (preparedStatement == null) return;
+        try {
+            preparedStatement.close();
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
 
-    public void closeStatement(@Nullable PreparedStatement preparedStatement){
-        try {
-            if(preparedStatement != null){
-                preparedStatement.close();
+    public void runSQLTask(@NotNull SQLRunnable task){
+        SchedulerAdapter.runTaskAsynchronously(() -> {
+            Connection conn = getConnection();
+
+            List<PreparedStatement> preparedStatements = new ArrayList<>();
+            try {
+                preparedStatements = task.run(conn);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            } finally {
+                preparedStatements.forEach(this::closeStatement);
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        });
     }
 
 }

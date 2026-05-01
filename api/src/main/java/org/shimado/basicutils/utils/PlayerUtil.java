@@ -12,16 +12,15 @@ import java.util.UUID;
 
 public class PlayerUtil {
 
-    private static boolean isFolia;
+    private static final boolean isFolia = PluginsHook.isFolia();
     private static Method teleportAsyncMethod = null;
 
     static {
-        isFolia = PluginsHook.isFolia();
         if(isFolia){
             try {
                 teleportAsyncMethod = Class.forName("org.bukkit.entity.Entity").getDeclaredMethod("teleportAsync", Location.class);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Failed to cache teleportAsync method", e);
             }
         }
     }

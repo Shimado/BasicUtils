@@ -12,15 +12,15 @@ import java.util.stream.Collectors;
 
 public class ColorUtil {
 
-    private static boolean isHex = BasicUtils.getVersionControl().isHex();
-    private static final Pattern pattern1 = Pattern.compile("(?<=#\\([a-fA-F0-9]{6}\\))(.*)(?=#\\([a-fA-F0-9]{6}\\))");
-    private static final Pattern pattern2 = Pattern.compile("#[a-fA-F0-9]{6}");
-    private static final Pattern pattern3 = Pattern.compile("&[0123456789abcdefklmnn]");
+    private static final boolean isHex = BasicUtils.getVersionControl().isHex();
+    private static final Pattern GRADIENT_PATTERN = Pattern.compile("(?<=#\\([a-fA-F0-9]{6}\\))(.*)(?=#\\([a-fA-F0-9]{6}\\))");
+    private static final Pattern HEX_PATTERN = Pattern.compile("#[a-fA-F0-9]{6}");
+    private static final Pattern TAG_PATTERN = Pattern.compile("&[0123456789abcdefklmnn]");
 
 
     @NotNull
     public static String getColor(@NotNull String text) {
-        Matcher matcher1 = pattern1.matcher(text);
+        Matcher matcher1 = GRADIENT_PATTERN.matcher(text);
         if(isHex){
             while (matcher1.find()){
                 String fullMessage = text.substring(matcher1.start() - 9, matcher1.end() + 9); //#(FF00FF)Example#(FF00FF)
@@ -31,17 +31,8 @@ public class ColorUtil {
                 String color1 = text.substring(matcher1.start() - 9, matcher1.start()).replaceAll("[()]", "");
                 String color2 = text.substring(matcher1.end(), matcher1.end() + 9).replaceAll("[()]", "");
 
-                int[] colorArr1 = new int[]{
-                        Integer.parseInt(color1.substring(1, 3), 16),
-                        Integer.parseInt(color1.substring(3, 5), 16),
-                        Integer.parseInt(color1.substring(5, 7), 16)
-                };
-
-                int[] colorArr2 = new int[]{
-                        Integer.parseInt(color2.substring(1, 3), 16),
-                        Integer.parseInt(color2.substring(3, 5), 16),
-                        Integer.parseInt(color2.substring(5, 7), 16)
-                };
+                int[] colorArr1 = hexToRgbArray(color1);
+                int[] colorArr2 = hexToRgbArray(color2);
 
                 int[] differenceArr = new int[]{
                         (colorArr2[0] - colorArr1[0]) / message.length(),
@@ -63,14 +54,14 @@ public class ColorUtil {
                 }
 
                 text = text.replace(fullMessage, editedMessage);
-                matcher1 = pattern1.matcher(text);
+                matcher1 = GRADIENT_PATTERN.matcher(text);
             }
 
-            Matcher matcher2 = pattern2.matcher(text);
+            Matcher matcher2 = HEX_PATTERN.matcher(text);
             while (matcher2.find()){
                 String color = text.substring(matcher2.start(), matcher2.end());
                 text = text.replace(color, net.md_5.bungee.api.ChatColor.of(color) + "");
-                matcher2 = pattern2.matcher(text);
+                matcher2 = HEX_PATTERN.matcher(text);
             }
         }
 
@@ -85,24 +76,30 @@ public class ColorUtil {
 
 
     public static boolean isAnyColor(@NotNull String hexOrTagColor){
-        return pattern2.matcher(hexOrTagColor).find() || pattern3.matcher(hexOrTagColor).find();
+        return HEX_PATTERN.matcher(hexOrTagColor).find() || TAG_PATTERN.matcher(hexOrTagColor).find();
     }
 
 
     public static boolean isHexColor(@NotNull String hexColor){
-        return pattern2.matcher(hexColor).find();
+        return HEX_PATTERN.matcher(hexColor).find();
     }
 
 
     @NotNull
     public static Color getHexColor(@NotNull String hexColor){
         if(hexColor.equalsIgnoreCase("transparent")) return new Color(0, 0, 0, 0);
-        int[] rgb = new int[]{
+        int[] rgb = hexToRgbArray(hexColor);
+        return new Color(rgb[0], rgb[1], rgb[2]);
+    }
+
+
+    @NotNull
+    private static int[] hexToRgbArray(@NotNull String hexColor) {
+        return new int[]{
                 Integer.parseInt(hexColor.substring(1, 3), 16),
                 Integer.parseInt(hexColor.substring(3, 5), 16),
                 Integer.parseInt(hexColor.substring(5, 7), 16)
         };
-        return new Color(rgb[0], rgb[1], rgb[2]);
     }
 
 }

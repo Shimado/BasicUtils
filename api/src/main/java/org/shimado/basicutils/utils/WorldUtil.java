@@ -48,7 +48,7 @@ public class WorldUtil {
         meta.setPower(power);
         firework.setItemMeta(meta);
 
-        playersToShow.forEach(p -> BasicUtils.getVersionControl().getVersionControl().createFirework(p, spawnLoc, firework));
+        playersToShow.forEach(p -> BasicUtils.getVersionControl().getVersionControl().createFirework(playersToShow, spawnLoc, firework));
     }
 
 }
