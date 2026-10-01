@@ -187,15 +187,18 @@ public class SQLConnection {
 
     public void runSQLTask(@NotNull SQLRunnable task){
         SchedulerAdapter.runTaskAsynchronously(() -> {
-            Connection conn = getConnection();
+            synchronized (this){
+                Connection conn = null;
+                List<PreparedStatement> preparedStatements = new ArrayList<>();
 
-            List<PreparedStatement> preparedStatements = new ArrayList<>();
-            try {
-                preparedStatements = task.run(conn);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            } finally {
-                preparedStatements.forEach(this::closeStatement);
+                try {
+                    conn = getConnection();
+                    preparedStatements = task.run(conn);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    preparedStatements.forEach(this::closeStatement);
+                }
             }
         });
     }

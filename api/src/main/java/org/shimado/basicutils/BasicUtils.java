@@ -5,8 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import org.shimado.basicutils.cycles.SchedulerAdapter;
 import org.shimado.basicutils.cycles.TaskUtil;
 import org.shimado.basicutils.nms.VersionControl;
-import org.shimado.basicutils.utils.MiniMessagesUtil;
-import org.shimado.basicutils.utils.PlayerUtil;
 
 public class BasicUtils {
 
@@ -16,7 +14,6 @@ public class BasicUtils {
     public BasicUtils(Plugin plugin){
         this.plugin = plugin;
         versionControl = new VersionControl();
-        new MiniMessagesUtil(plugin);
         new SchedulerAdapter(plugin);
         new TaskUtil(plugin);
     }

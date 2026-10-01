@@ -94,7 +94,7 @@ public class ColorUtil {
 
 
     @NotNull
-    private static int[] hexToRgbArray(@NotNull String hexColor) {
+    public static int[] hexToRgbArray(@NotNull String hexColor) {
         return new int[]{
                 Integer.parseInt(hexColor.substring(1, 3), 16),
                 Integer.parseInt(hexColor.substring(3, 5), 16),

@@ -83,18 +83,24 @@ public class VersionControl {
                 case "26.1":
                 case "26.1.1":
                 case "26.1.2":
-                case "26.1.3":
-                case "26.1.4":
-                case "26.1.5": version = "v26_1_R1"; break;
+                case "26.2":
+                case "26.2.1":
+                case "26.2.2":
+                case "26.3":
+                case "26.3.1":
+                case "26.3.2": version = "v26_1_R1"; break;
 
                 default: {
                     switch (Bukkit.getServer().getVersion().split("-")[0]){
                         case "26.1":
                         case "26.1.1":
                         case "26.1.2":
-                        case "26.1.3":
-                        case "26.1.4":
-                        case "26.1.5": version = "v26_1_R1"; break;
+                        case "26.2":
+                        case "26.2.1":
+                        case "26.2.2":
+                        case "26.3":
+                        case "26.3.1":
+                        case "26.3.2": version = "v26_1_R1"; break;
                     }
                 }
             }
@@ -142,6 +148,19 @@ public class VersionControl {
 
 
     public boolean isHex(){
+        return Arrays.asList(
+                "v1_12_R1",
+                "v1_13_R1",
+                "v1_13_R2",
+                "v1_14_R1",
+                "v1_15_R1",
+                "v1_16_R1",
+                "v1_16_R2"
+        ).stream().noneMatch(it -> version.equals(it));
+    }
+
+
+    public boolean isBreakBlock(){
         return Arrays.asList(
                 "v1_12_R1",
                 "v1_13_R1",
@@ -226,6 +245,32 @@ public class VersionControl {
                 "v1_21_R5",
                 "v1_21_R6",
                 "v1_21_R7"
+        ).stream().noneMatch(it -> version.equals(it));
+    }
+
+
+    public boolean isItemModel() {
+        return Arrays.asList(
+                "v1_12_R1",
+                "v1_13_R1",
+                "v1_13_R2",
+                "v1_14_R1",
+                "v1_15_R1",
+                "v1_16_R1",
+                "v1_16_R2",
+                "v1_16_R3",
+                "v1_17_R1",
+                "v1_18_R1",
+                "v1_18_R2",
+                "v1_19_R1",
+                "v1_19_R2",
+                "v1_19_R3",
+                "v1_20_R1",
+                "v1_20_R2",
+                "v1_20_R3",
+                "v1_20_R4",
+                "v1_21_R1",
+                "v1_21_R2"
         ).stream().noneMatch(it -> version.equals(it));
     }
 }

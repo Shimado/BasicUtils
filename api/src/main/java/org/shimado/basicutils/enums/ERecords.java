@@ -3,6 +3,7 @@ package org.shimado.basicutils.enums;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.shimado.basicutils.utils.MaterialUtil;
+import org.shimado.basicutils.utils.RecordsSoundUtil;
 import org.shimado.basicutils.utils.SoundUtil;
 
 import javax.annotation.Nonnull;
@@ -31,7 +32,8 @@ public enum ERecords {
     MUSIC_DISC_CREATOR(18, new String[]{"MUSIC_DISC_CREATOR", "Y"}, new String[]{"MUSIC_DISC.CREATOR", "MUSIC_DISC_CREATOR", "X"}, 176),
     MUSIC_DISC_CREATOR_MUSIC_BOX(19, new String[]{"MUSIC_DISC_CREATOR_MUSIC_BOX", "Y"}, new String[]{"MUSIC_DISC.CREATOR_MUSIC_BOX", "MUSIC_DISC_CREATOR_MUSIC_BOX", "X"}, 73),
     MUSIC_DISC_TEARS(20, new String[]{"MUSIC_DISC_TEARS", "Y"}, new String[]{"MUSIC_DISC.TEARS", "MUSIC_DISC_TEARS", "X"}, 175),
-    MUSIC_DISC_LAVA_CHICKEN(21, new String[]{"MUSIC_DISC_LAVA_CHICKEN", "Y"}, new String[]{"MUSIC_DISC.LAVA_CHICKEN", "MUSIC_DISC_LAVA_CHICKEN", "X"}, 135);
+    MUSIC_DISC_LAVA_CHICKEN(21, new String[]{"MUSIC_DISC_LAVA_CHICKEN", "Y"}, new String[]{"MUSIC_DISC.LAVA_CHICKEN", "MUSIC_DISC_LAVA_CHICKEN", "X"}, 135),
+    MUSIC_DISC_BOUNCE(22, new String[]{"MUSIC_DISC_BOUNCE", "Y"}, new String[]{"MUSIC_DISC.BOUNCE", "MUSIC_DISC_BOUNCE", "X"}, 234);
 
     private int id;
     private String[] materials;
@@ -61,7 +63,7 @@ public enum ERecords {
 
     @Nonnull
     public Sound getSound(){
-        return SoundUtil.getSound(sounds);
+        return RecordsSoundUtil.getSound(sounds);
     }
 
     @Nullable

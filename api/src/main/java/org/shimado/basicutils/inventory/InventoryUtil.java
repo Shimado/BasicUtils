@@ -10,10 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import org.shimado.basicutils.utils.ColorUtil;
 import org.shimado.basicutils.utils.CreateItemUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class InventoryUtil {
 
@@ -23,7 +20,7 @@ public class InventoryUtil {
     }
 
 
-    public static boolean addItemsToInventory(@NotNull Player player, @NotNull List<ItemStack> itemsToGive){
+    public static boolean addItemsToInventory(@NotNull Player player, @NotNull Collection<ItemStack> itemsToGive){
         if(itemsToGive.isEmpty()) return true;
 
         Inventory oldInv = player.getInventory();
@@ -55,7 +52,7 @@ public class InventoryUtil {
     }
 
 
-    public static void addItemsToInventoryOrDrop(@NotNull Player player, @NotNull List<ItemStack> itemsToGive){
+    public static void addItemsToInventoryOrDrop(@NotNull Player player, @NotNull Collection<ItemStack> itemsToGive){
         if(itemsToGive.isEmpty()) return;
         player.getInventory().addItem(itemsToGive.toArray(ItemStack[]::new)).values()
                 .forEach(item -> player.getWorld().dropItemNaturally(player.getLocation().clone().add(0, 1, 0), item));
@@ -93,14 +90,14 @@ public class InventoryUtil {
     }
 
 
-    public static void setItemToGUI(@NotNull Inventory inv, int slot, @NotNull Object material, @NotNull String name, @NotNull List<String> lore, boolean enchant, int customModelData, boolean hideName){
+    public static void setItemToGUI(@NotNull Inventory inv, int slot, @NotNull Object material, @NotNull String name, @NotNull List<String> lore, boolean enchant, @NotNull Object modelData, boolean hideName){
         if(slot >= 0 && slot < inv.getSize()){
-            inv.setItem(slot, CreateItemUtil.create(material, name, lore, enchant, customModelData, hideName));
+            inv.setItem(slot, CreateItemUtil.create(material, name, lore, enchant, modelData, hideName));
         }
     }
 
-    public static void setItemToGUI(@NotNull Inventory inv, @NotNull List<Integer> slots, @NotNull Object material, @NotNull String name, @NotNull List<String> lore, boolean enchant, int customModelData, boolean hideName){
-        slots.forEach(s -> setItemToGUI(inv, s, material, name, lore, enchant, customModelData, hideName));
+    public static void setItemToGUI(@NotNull Inventory inv, @NotNull Collection<Integer> slots, @NotNull Object material, @NotNull String name, @NotNull List<String> lore, boolean enchant, @NotNull Object modelData, boolean hideName){
+        slots.forEach(s -> setItemToGUI(inv, s, material, name, lore, enchant, modelData, hideName));
     }
 
 
@@ -110,7 +107,7 @@ public class InventoryUtil {
         }
     }
 
-    public static void setItemToGUI(@NotNull Inventory inv, @NotNull List<Integer> slots, @Nullable ItemStack item){
+    public static void setItemToGUI(@NotNull Inventory inv, @NotNull Collection<Integer> slots, @Nullable ItemStack item){
         slots.forEach(s -> setItemToGUI(inv, s, item));
     }
 
@@ -152,7 +149,7 @@ public class InventoryUtil {
             }
             else{
                 List<Object> list = (List<Object>) materials;
-                setItemToGUI(inv, slot, list.get(0), " ", new ArrayList<>(), false, (int) list.get(1), true);
+                setItemToGUI(inv, slot, list.get(0), " ", new ArrayList<>(), false, list.get(1), true);
             }
         });
         logic.run(inv);

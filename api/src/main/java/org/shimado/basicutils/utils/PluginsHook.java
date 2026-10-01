@@ -16,7 +16,7 @@ public class PluginsHook {
         }
     }
 
-    private static boolean isPlugin(@NotNull String pluginName){
+    public static boolean isPlugin(@NotNull String pluginName){
         return Bukkit.getServer().getPluginManager().getPlugin(pluginName) != null;
     }
 
@@ -88,6 +88,11 @@ public class PluginsHook {
 
     public static boolean isWorldGuard(){
         return isPlugin("WorldGuard");
+    }
+
+
+    public static boolean isGriefDefender(){
+        return isPlugin("GriefDefender");
     }
 
 

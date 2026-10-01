@@ -3,9 +3,9 @@ package org.shimado.basicutils.configs;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -31,12 +31,12 @@ public class MainConfigManager {
     }
 
 
-    @Nonnull
+    @NotNull
     public YamlConfiguration getConfig(){
         return config;
     }
 
-    @Nonnull
+    @NotNull
     public YamlConfiguration getMessages(){
         return messages;
     }
@@ -44,12 +44,12 @@ public class MainConfigManager {
 
     @FunctionalInterface
     public interface ConfigRunnable {
-        boolean run(@Nonnull YamlConfiguration config, @Nonnull YamlConfiguration messages);
+        boolean run(@NotNull YamlConfiguration config, @NotNull YamlConfiguration messages);
     }
 
     @FunctionalInterface
     public interface ConfigUpdateRunnable {
-        void run(@Nonnull YamlConfiguration config, @Nonnull YamlConfiguration messages, String oldVersion, String newVersion);
+        void run(@NotNull YamlConfiguration config, @NotNull YamlConfiguration messages, String oldVersion, String newVersion);
     }
 
 
@@ -129,22 +129,22 @@ public class MainConfigManager {
 
         if(!oldVersion.equals(newVersion)){
 
-            for(String key : newConfig.getKeys(true)){
-                if(!config.contains(key)){
-                    config.set(key, newConfig.get(key));
-                }
-            }
+//            for(String key : newConfig.getKeys(true)){
+//                if(!config.contains(key)){
+//                    config.set(key, newConfig.get(key));
+//                }
+//            }
 
             config.set("Version", newVersion);
 
 
-            FileConfiguration newMessages = YamlConfiguration.loadConfiguration(new InputStreamReader(plugin.getResource("langs/" + config.getString("Language") + ".yml"), StandardCharsets.UTF_8));
-
-            for(String key : newMessages.getKeys(false)){
-                if(!messages.contains(key)){
-                    messages.set(key, newMessages.get(key));
-                }
-            }
+//            FileConfiguration newMessages = YamlConfiguration.loadConfiguration(new InputStreamReader(plugin.getResource("langs/" + config.getString("Language") + ".yml"), StandardCharsets.UTF_8));
+//
+//            for(String key : newMessages.getKeys(false)){
+//                if(!messages.contains(key)){
+//                    messages.set(key, newMessages.get(key));
+//                }
+//            }
 
             // Если не null то выполнит задачу
             if(configUpdateRunnable != null){

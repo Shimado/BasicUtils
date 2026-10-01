@@ -1,5 +1,6 @@
 package org.shimado.basicutils.utils;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -128,7 +129,14 @@ public class MaterialUtil {
     @Nullable
     public static ItemStack getRecord(@NotNull String recordString){
         ERecords record = ERecords.findByName(recordString);
-        return record == null ? null : new ItemStack(record.getMaterial());
+        if(record == null) return new ItemStack(Material.APPLE);
+
+        if(BasicUtils.getVersionControl().isGlowingAndHiddenNamesUpdated()){
+            return Bukkit.getItemFactory().createItemStack(record.getMaterial().toString().toLowerCase() + "[!jukebox_playable]");
+        }
+        else{
+            return new ItemStack(record.getMaterial());
+        }
     }
 
 
@@ -165,6 +173,10 @@ public class MaterialUtil {
 
         if(name.contains("CLOCK")){
             return new ItemStack(getMaterial((new String[]{"CLOCK", "WATCH"})));
+        }
+
+        if(name.contains("SIGN")){
+            return new ItemStack(getMaterial((new String[]{name, name.replace("_HANGING", ""), "SIGN"})));
         }
 
         if(name.contains("IRON_BARS")){

@@ -66,6 +66,14 @@ public class NumberUtil {
     }
 
 
+    @NotNull
+    public static String getIntNumber(long number, boolean isFormatting) {
+        if(number == 0) return "0";
+        DecimalFormat df = new DecimalFormat(isFormatting ? "#,###" : "#", new DecimalFormatSymbols(Locale.US));
+        return df.format(number);
+    }
+
+
     public static boolean inRangeInt(int number, int min, int max){
         return number >= min && number <= max;
     }
@@ -98,6 +106,62 @@ public class NumberUtil {
     @NotNull
     public static String getDateTimeFormat(@NotNull Date date, @NotNull String dateFormat){
         return new SimpleDateFormat(dateFormat).format(date);
+    }
+
+
+    @NotNull
+    public static String getDateTimeFormat(long timeInSeconds, @NotNull String dateFormat){
+        boolean hasDays = dateFormat.contains("dd");
+        boolean hasHours = dateFormat.contains("HH");
+        boolean hasMinutes = dateFormat.contains("mm");
+        boolean hasSeconds = dateFormat.contains("ss");
+
+        long days = 0, hours = 0, minutes = 0, seconds = 0;
+
+        if (hasSeconds && !hasMinutes && !hasHours && !hasDays) {
+            seconds = timeInSeconds;
+        } else {
+            days = timeInSeconds / 86400;
+            hours = (timeInSeconds % 86400) / 3600;
+            minutes = (timeInSeconds % 3600) / 60;
+            seconds = timeInSeconds % 60;
+
+            // Если дни не требуются, добавляем часы от дней к обычным часам
+            if (!hasDays && days > 0) {
+                hours += days * 24;
+                days = 0;
+            }
+
+            // Если часы не требуются, добавляем часы к минутам
+            if (!hasHours && hours > 0) {
+                minutes += hours * 60;
+                hours = 0;
+            }
+
+            // Если минуты не требуются, добавляем минуты к секундам
+            if (!hasMinutes && minutes > 0) {
+                seconds += minutes * 60;
+                minutes = 0;
+            }
+        }
+
+        // Формируем результат
+        String result = dateFormat;
+
+        if (hasDays) {
+            result = result.replace("dd", String.format("%02d", days));
+        }
+        if (hasHours) {
+            result = result.replace("HH", String.format("%02d", hours));
+        }
+        if (hasMinutes) {
+            result = result.replace("mm", String.format("%02d", minutes));
+        }
+        if (hasSeconds) {
+            result = result.replace("ss", String.format("%02d", seconds));
+        }
+
+        return result;
     }
 
 

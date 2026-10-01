@@ -2,15 +2,14 @@ package org.shimado.basicutils.utils;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
@@ -22,11 +21,13 @@ import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class CreateItemUtil {
 
     private static final boolean isCustomModelData = BasicUtils.getVersionControl().isCustomModelData();
+    private static final boolean isItemModel = BasicUtils.getVersionControl().isItemModel();
     private static final boolean isGlowingAndHiddenNamesUpdated = BasicUtils.getVersionControl().isGlowingAndHiddenNamesUpdated();
     private static final boolean isHeadMetaUpdated = BasicUtils.getVersionControl().isHeadMetaUpdated();
     private static final ItemFlag[] itemFlags = Arrays.stream(new String[]{"HIDE_ENCHANTS", "HIDE_ATTRIBUTES", "HIDE_UNBREAKABLE", "HIDE_DESTROYS", "HIDE_PLACED_ON", "HIDE_ADDITIONAL_TOOLTIP", "HIDE_DYE", "HIDE_ARMOR_TRIM", "HIDE_CUSTOM_DATA"})
@@ -43,21 +44,32 @@ public class CreateItemUtil {
     private static Inventory convertInv = Bukkit.createInventory(null, 9, "BasicTestInventory");
 
     @NotNull
-    public static ItemStack create(@NotNull Object materialOrHeadURL, @NotNull String displayName, @NotNull List<String> lore, boolean glowing, int customModelData, boolean hideNames) {
+    public static ItemStack create(@NotNull Object materialOrHeadURL, @NotNull String displayName, @NotNull List<String> lore, boolean glowing, @NotNull Object modelData, boolean hideNames) {
         ItemStack item = getItemStackFrom(materialOrHeadURL).clone();
         ItemMeta meta = item.getItemMeta();
+        if(meta == null) return item;
         meta.setDisplayName(ColorUtil.getColor(displayName));
         meta.setLore(ColorUtil.getColorList(lore));
 
         if(isGlowingAndHiddenNamesUpdated){
-            if(glowing) meta.setEnchantmentGlintOverride(true);
-            if(hideNames || displayName.isEmpty() || displayName.equals(" ")) meta.setHideTooltip(true);
+            meta.setEnchantmentGlintOverride(glowing);
+            meta.setHideTooltip(hideNames || displayName.isEmpty() || displayName.equals(" "));
         }else{
             if(glowing) meta.addEnchant(Enchantment.KNOCKBACK, 1, true);
         }
 
-        if(customModelData > 0 && isCustomModelData){
-            meta.setCustomModelData(customModelData);
+        // Custom model data
+        if(modelData instanceof Integer && isCustomModelData && (int) modelData > 0){
+            meta.setCustomModelData((int) modelData);
+        }
+
+        // Item model
+        else if(modelData instanceof String && isItemModel && ((String) modelData).length() > 0){
+            String modelDataString = (String) modelData;
+            if(modelDataString.contains(":")){
+                String[] arr = modelDataString.split(":");
+                meta.setItemModel(new NamespacedKey(arr[0], arr[1]));
+            }
         }
 
         meta.addItemFlags(itemFlags);
@@ -69,8 +81,8 @@ public class CreateItemUtil {
 
 
     @NotNull
-    public static ItemStack create(@NotNull Object materialOrHeadURL, @NotNull String displayName, @NotNull List<String> lore, boolean glowing, int customModelData, boolean hideNames, @NotNull String NBTTag, @NotNull String NBTTagValue){
-        ItemStack item = create(materialOrHeadURL, displayName, lore, glowing, customModelData, hideNames);
+    public static ItemStack create(@NotNull Object materialOrHeadURL, @NotNull String displayName, @NotNull List<String> lore, boolean glowing, @NotNull Object modelData, boolean hideNames, @NotNull String NBTTag, @NotNull String NBTTagValue){
+        ItemStack item = create(materialOrHeadURL, displayName, lore, glowing, modelData, hideNames);
         convertInv.setItem(0, BasicUtils.getVersionControl().getVersionControl().createItemWithTag(item, NBTTag, NBTTagValue));
         return convertInv.getItem(0);
     }
@@ -82,7 +94,24 @@ public class CreateItemUtil {
             return getSkull((String) materialOrHeadURL);
         }
         else if(materialOrHeadURL instanceof String && ((String) materialOrHeadURL).length() < 30){
-            return MaterialUtil.getItemByName((String) materialOrHeadURL);
+            String materialRaw = ((String) materialOrHeadURL).toUpperCase();
+            String regex = "^LEATHER_[A-Z_]+\\[#[0-9A-Fa-f]{6}\\]$";
+
+            if(Pattern.compile(regex).matcher(materialRaw).matches()){
+                String materialName = materialRaw.replaceAll("\\[#[0-9A-Fa-f]{6}\\]$", "");
+                String hexColor = materialRaw
+                        .replaceAll("^LEATHER_[A-Z_]+\\[", "")
+                        .replaceAll("\\]$", "");
+                ItemStack item = new ItemStack(Material.getMaterial(materialName));
+                LeatherArmorMeta meta = (LeatherArmorMeta) item.getItemMeta();
+
+                int[] arr = ColorUtil.hexToRgbArray(hexColor);
+                meta.setColor(Color.fromRGB(arr[0], arr[1], arr[2]));
+                item.setItemMeta(meta);
+                return item;
+            }
+
+            return MaterialUtil.getItemByName(materialRaw);
         }
         else if(materialOrHeadURL instanceof Material){
             return new ItemStack((Material) materialOrHeadURL);
@@ -193,15 +222,27 @@ public class CreateItemUtil {
 
 
     @NotNull
-    public static ItemStack getHeadOfPlayerOnTheServerWithCustomModelData(@NotNull UUID playerUUID, int customModelData){
+    public static ItemStack getHeadOfPlayerOnTheServerWithCustomModelData(@NotNull UUID playerUUID, @NotNull Object modelData){
         ItemStack item = MaterialUtil.getHead();
         SkullMeta meta = (SkullMeta) item.getItemMeta();
         OfflinePlayer offPlayer = Bukkit.getOfflinePlayer(playerUUID);
         if(offPlayer == null) return item;
         meta.setOwningPlayer(Bukkit.getOfflinePlayer(playerUUID));
-        if(customModelData > 0 && isCustomModelData){
-            meta.setCustomModelData(customModelData);
+
+        // Custom model data
+        if(modelData instanceof Integer && isCustomModelData && (int) modelData > 0){
+            meta.setCustomModelData((int) modelData);
         }
+
+        // Item model
+        else if(modelData instanceof String && isItemModel && ((String) modelData).length() > 0){
+            String modelDataString = (String) modelData;
+            if(modelDataString.contains(":")){
+                String[] arr = modelDataString.split(":");
+                meta.setItemModel(new NamespacedKey(arr[0], arr[1]));
+            }
+        }
+
         item.setItemMeta(meta);
         return item;
     }
@@ -239,9 +280,14 @@ public class CreateItemUtil {
         return BasicUtils.getVersionControl().getVersionControl().getTag(item, tag);
     }
 
+    @NotNull
+    public static ItemStack setTag(@NotNull ItemStack item, @NotNull String tag, @NotNull String value){
+        return BasicUtils.getVersionControl().getVersionControl().createItemWithTag(item, tag, value);
+    }
+
 
     @Nullable
-    public static ItemStack replaceItemPlaceholders(@Nullable ItemStack item, @NotNull String displayName, @NotNull List<String> lore, @NotNull Map<String, String> placeholders){
+    public static ItemStack replaceItemPlaceholders(boolean clone, @Nullable ItemStack item, @NotNull String displayName, @NotNull List<String> lore, @NotNull Map<String, String> placeholders){
         if(item == null) return null;
 
         String newTitle = displayName;
@@ -252,7 +298,7 @@ public class CreateItemUtil {
             newLore = newLore.stream().map(it -> it.replace(a.getKey(), a.getValue())).collect(Collectors.toList());
         }
 
-        ItemStack itemToEdit = item.clone();
+        ItemStack itemToEdit = clone ? item.clone() : item;
         ItemMeta meta = itemToEdit.getItemMeta();
         meta.setDisplayName(ColorUtil.getColor(newTitle));
         meta.setLore(ColorUtil.getColorList(newLore));
